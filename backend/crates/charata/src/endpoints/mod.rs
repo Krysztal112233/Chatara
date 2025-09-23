@@ -1,3 +1,3 @@
-mod history;
-mod profile;
-mod root;
+pub mod history;
+pub mod profile;
+pub mod root;
