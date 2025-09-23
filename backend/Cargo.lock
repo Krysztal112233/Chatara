@@ -352,6 +352,7 @@ dependencies = [
  "mimalloc",
  "rocket",
  "sea-orm",
+ "serde",
  "thiserror",
 ]
 
@@ -1382,7 +1383,7 @@ checksum = "32a282da65faaf38286cf3be983213fcf1d2e2a58700e808f83f4ea9a4804bc0"
 
 [[package]]
 name = "migration"
-version = "0.1.0"
+version = "0.0.1"
 dependencies = [
  "sea-orm-migration",
  "tokio",

@@ -7,6 +7,8 @@ static GLOBAL: MiMalloc = MiMalloc;
 mod common;
 mod config;
 mod endpoints;
+#[allow(unused)]
+mod entity;
 mod error;
 
 #[rocket::launch]

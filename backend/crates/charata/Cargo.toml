@@ -10,4 +10,5 @@ version.workspace = true
 mimalloc.workspace = true
 rocket.workspace = true
 sea-orm.workspace = true
+serde.workspace = true
 thiserror.workspace = true
