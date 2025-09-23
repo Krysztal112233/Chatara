@@ -1,5 +1,5 @@
 # Frontend build stage
-FROM docker.io/library/node:22-slim AS frontend-base
+FROM docker.io/library/node:22-slim AS frontend-builder
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
@@ -22,7 +22,7 @@ RUN cargo build --all -r
 
 # Frontend production stage
 FROM nginxinc/nginx-unprivileged:stable-alpine-slim AS frontend
-COPY --from=frontend-base /app/dist /app
+COPY --from=frontend-builder /app/dist /app
 COPY frontend/docker/nginx.conf /etc/nginx/conf.d/default.conf
 WORKDIR /app
 EXPOSE 8080
