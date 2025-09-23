@@ -1,0 +1,7 @@
+[default.database]
+min_connections = 16
+max_connections = 128
+connect_timeout = 16
+
+[debug.database]
+url = "postgres://postgres:GVhI4w5Rdt56TTaiqEdsH6pI4bXOWQDA@localhost/postgres"

@@ -352,6 +352,7 @@ dependencies = [
  "educe",
  "env_logger",
  "log",
+ "migration",
  "mimalloc",
  "rocket",
  "sea-orm",

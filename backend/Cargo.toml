@@ -20,6 +20,8 @@ thiserror = "2.0"
 tokio = "1"
 uuid = "1.18"
 
+migration = { path = "./crates/migration/" }
+
 [workspace.dependencies.figment]
 features = ["toml", "env", "json"]
 version = "*"
