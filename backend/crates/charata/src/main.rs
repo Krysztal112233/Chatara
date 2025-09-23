@@ -1,6 +1,6 @@
 use log::LevelFilter;
 use mimalloc::MiMalloc;
-use rocket::Rocket;
+use rocket::{catchers, Rocket};
 
 use crate::endpoints::{
     history::HistoryEndpoint, profile::CharacterProfileEndpoint, root::RootEndpoint,
@@ -23,6 +23,7 @@ async fn rocket() -> _ {
         .try_init();
 
     Rocket::build()
+        .register("/", catchers![common::catcher::default])
         .attach(HistoryEndpoint::adhoc())
         .attach(RootEndpoint::adhoc())
         .attach(CharacterProfileEndpoint::adhoc())

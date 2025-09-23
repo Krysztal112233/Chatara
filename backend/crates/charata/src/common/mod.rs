@@ -6,6 +6,8 @@ use rocket::{
     Response,
 };
 
+pub mod catcher;
+
 #[derive(Debug, Clone, Serialize, Deserialize, Educe)]
 #[educe(Default)]
 pub struct CommonResponse {
