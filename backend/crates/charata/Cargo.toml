@@ -8,6 +8,8 @@ version.workspace = true
 
 [dependencies]
 educe.workspace = true
+env_logger.workspace = true
+log.workspace = true
 mimalloc.workspace = true
 rocket.workspace = true
 sea-orm.workspace = true
