@@ -2,9 +2,9 @@ use log::LevelFilter;
 use mimalloc::MiMalloc;
 use rocket::{catchers, Rocket};
 
-use crate::endpoints::{
+use crate::{common::fairings::Cors, endpoints::{
     history::HistoryEndpoint, profile::CharacterProfileEndpoint, root::RootEndpoint,
-};
+}};
 
 #[global_allocator]
 static GLOBAL: MiMalloc = MiMalloc;
@@ -24,6 +24,7 @@ async fn rocket() -> _ {
 
     Rocket::build()
         .register("/", catchers![common::catcher::default])
+        .attach(Cors)
         .attach(HistoryEndpoint::adhoc())
         .attach(RootEndpoint::adhoc())
         .attach(CharacterProfileEndpoint::adhoc())

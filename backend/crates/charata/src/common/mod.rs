@@ -7,6 +7,7 @@ use rocket::{
 };
 
 pub mod catcher;
+pub mod fairings;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Educe)]
 #[educe(Default)]
