@@ -2,9 +2,12 @@ use log::LevelFilter;
 use mimalloc::MiMalloc;
 use rocket::{catchers, Rocket};
 
-use crate::{common::fairings::Cors, endpoints::{
-    history::HistoryEndpoint, profile::CharacterProfileEndpoint, root::RootEndpoint,
-}};
+use crate::{
+    common::fairings::Cors,
+    endpoints::{
+        character::CharacterProfileEndpoint, history::HistoryEndpoint, root::RootEndpoint,
+    },
+};
 
 #[global_allocator]
 static GLOBAL: MiMalloc = MiMalloc;

@@ -1,3 +1,6 @@
+#[allow(unused)]
 pub mod history;
-pub mod profile;
+#[allow(unused)]
+pub mod character;
+#[allow(unused)]
 pub mod root;
