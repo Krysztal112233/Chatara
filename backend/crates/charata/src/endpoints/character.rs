@@ -1,6 +1,13 @@
-use rocket::{delete, fairing::AdHoc, get, post, routes, serde::json::Json};
-use serde_json::Value;
+use rocket::{delete, fairing::AdHoc, get, post, routes, serde::json::Json, State};
+use sea_orm::{DatabaseConnection, EntityTrait, QueryOrder};
+use serde_json::{json, Value};
 use uuid::Uuid;
+
+use crate::{
+    common::CommonResponse,
+    entity::{character_profiles, prelude::*},
+    error,
+};
 
 pub struct CharacterProfileEndpoint;
 
@@ -21,7 +28,12 @@ impl CharacterProfileEndpoint {
 }
 
 #[get("/")]
-async fn get_characters() {}
+async fn get_characters(db: &State<DatabaseConnection>) {
+    let result = CharacterProfiles::find()
+        .order_by_asc(character_profiles::Column::CreatedAt)
+        .all(db.inner())
+        .await;
+}
 
 #[delete("/<character>")]
 async fn delete_character(character: Uuid) {}
