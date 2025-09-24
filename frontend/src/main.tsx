@@ -5,6 +5,17 @@ import { routeTree } from './routeTree.gen'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { HeroUIProvider } from '@heroui/react'
 import type { NavigateOptions, ToOptions } from '@tanstack/react-router'
+import { createHead, UnheadProvider } from '@unhead/react/client'
+import { Provider as JotaiProvider } from 'jotai/react'
+
+const head = createHead({
+  init: [
+    {
+      title: 'Loading...',
+      titleTemplate: '%s - Chatara',
+    },
+  ],
+})
 
 const router = createRouter({
   routeTree,
@@ -25,12 +36,16 @@ declare module '@react-types/shared' {
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
-    <HeroUIProvider
-      navigate={(to, options) => router.navigate({ to, ...options })}
-      useHref={(to) => router.buildLocation({ to }).href}
-    >
-      {children}
-    </HeroUIProvider>
+    <JotaiProvider>
+      <UnheadProvider head={head}>
+        <HeroUIProvider
+          navigate={(to, options) => router.navigate({ to, ...options })}
+          useHref={(to) => router.buildLocation({ to }).href}
+        >
+          {children}
+        </HeroUIProvider>
+      </UnheadProvider>
+    </JotaiProvider>
   )
 }
 

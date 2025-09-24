@@ -1,13 +1,10 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({
-  component: Index,
+  beforeLoad: async () => {
+    throw redirect({
+      to: '/chat',
+      replace: true,
+    })
+  },
 })
-
-function Index() {
-  return (
-    <div className="p-2">
-      <h3>Ciallo World!</h3>
-    </div>
-  )
-}
