@@ -218,7 +218,7 @@ enum UsersTable {
 }
 
 #[derive(DeriveIden)]
-pub(crate) enum CharacterProfilesTable {
+enum CharacterProfilesTable {
     CharacterProfiles,
 
     Id,

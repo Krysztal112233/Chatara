@@ -11,6 +11,7 @@ pub struct Model {
     pub created_at: DateTimeWithTimeZone,
     pub belong_user: Uuid,
     pub belong_character_profile: Uuid,
+    pub updated_at: DateTimeWithTimeZone,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

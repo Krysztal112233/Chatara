@@ -1,7 +1,5 @@
 use sea_orm_migration::prelude::*;
 
-use crate::m20220101_000001_create_table::CharacterProfilesTable;
-
 #[derive(DeriveMigrationName)]
 pub struct Migration;
 
@@ -47,4 +45,11 @@ impl MigrationTrait for Migration {
             )
             .await
     }
+}
+
+#[derive(DeriveIden)]
+enum CharacterProfilesTable {
+    CharacterProfiles,
+
+    Name,
 }
