@@ -9,6 +9,7 @@ pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: Uuid,
     pub created_at: DateTimeWithTimeZone,
+    #[sea_orm(unique)]
     pub name: String,
     #[sea_orm(column_type = "JsonBinary")]
     pub settings: Json,
