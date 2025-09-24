@@ -11,6 +11,7 @@ educe.workspace = true
 env_logger.workspace = true
 log.workspace = true
 mimalloc.workspace = true
+openai.workspace = true
 rocket.workspace = true
 sea-orm.workspace = true
 serde.workspace = true
