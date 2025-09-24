@@ -12,6 +12,7 @@ resolver = "3"
 chrono = { version = "0.4", features = ["serde"] }
 educe = "0.6"
 env_logger = "0.11"
+jsonwebtoken = "9.3"
 log = "0.4"
 mimalloc = { version = "0.1", features = ["v3"] }
 openai = "1.1"
