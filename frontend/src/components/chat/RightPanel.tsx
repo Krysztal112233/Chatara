@@ -260,14 +260,6 @@ export function RightPanel({
                   )}
                   )
                 </h3>
-                <div className='flex gap-1'>
-                  <Button isIconOnly size='sm' variant='light'>
-                    <PiChartLine className='text-lg' />
-                  </Button>
-                  <Button isIconOnly size='sm' variant='light'>
-                    <PiShield className='text-lg' />
-                  </Button>
-                </div>
               </div>
 
               {/* 新建会话按钮 */}

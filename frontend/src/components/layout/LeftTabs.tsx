@@ -2,6 +2,7 @@ import { createLink, useLocation } from '@tanstack/react-router'
 import { Button, Avatar, Tooltip } from '@heroui/react'
 import { PiChatCircle, PiCompass } from 'react-icons/pi'
 import { ThemeSwitcher } from '@/components/ui/ThemeSwitcher'
+import { UserPopover } from '@/components/ui/UserPopover'
 
 export const LinkButton = createLink(Button)
 
@@ -16,13 +17,15 @@ export function LeftTabs() {
   return (
     <div className='w-16 bg-content2 border-r border-divider flex flex-col items-center py-4 justify-between'>
       <div className='flex flex-col items-center space-y-3'>
-        <Tooltip content="用户设置" placement="right">
-          <Avatar
-            size="md"
-            src="https://i.pravatar.cc/150?u=demo-user"
-            className="w-10 h-10 cursor-pointer transition-all duration-200 hover:ring-2 hover:ring-primary hover:ring-offset-2 hover:ring-offset-background"
-          />
-        </Tooltip>
+        <UserPopover>
+          <Tooltip content="用户设置" placement="right">
+            <Avatar
+              size="md"
+              src="https://i.pravatar.cc/150?u=demo-user"
+              className="w-10 h-10 cursor-pointer transition-all duration-200 hover:ring-2 hover:ring-primary hover:ring-offset-2 hover:ring-offset-background"
+            />
+          </Tooltip>
+        </UserPopover>
         
         <div className='flex flex-col items-center space-y-2'>
           {tabs.map((tab) => (
