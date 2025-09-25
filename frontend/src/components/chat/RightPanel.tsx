@@ -1,13 +1,12 @@
 import { useEffect, useRef } from 'react'
 import { useAtom } from 'jotai'
+import { useRouterState } from '@tanstack/react-router'
 import { Button, Tooltip, Divider } from '@heroui/react'
 import {
   PiCaretLeft,
   PiCaretRight,
   PiStar,
   PiGear,
-  PiChartLine,
-  PiShield,
   PiPlus,
   PiStarFill,
 } from 'react-icons/pi'
@@ -23,9 +22,12 @@ import {
 import { useWindowDimensions } from '@/hooks/useWindowDimensions'
 
 export interface ConversationItem {
-  id: number
+  id: string
   title: string
-  starred?: boolean
+  lastMessage?: string
+  timestamp: string
+  messageCount: number
+  starred: boolean
 }
 
 export interface ConversationGroup {
@@ -47,7 +49,7 @@ interface RightPanelProps {
   conversations: ConversationGroup[]
   onNewSession?: () => void
   onRoleSettingsClick?: () => void
-  onConversationClick?: (conversationId: number) => void
+  onConversationClick?: (conversationId: string) => void
 }
 
 export function RightPanel({
@@ -61,7 +63,17 @@ export function RightPanel({
   onRoleSettingsClick,
   onConversationClick,
 }: RightPanelProps) {
+  const routerState = useRouterState()
   const [panelWidth, setPanelWidth] = useAtom(rightPanelWidthAtom)
+
+  // 从路由中获取当前会话 ID
+  const getCurrentSessionId = (): string | null => {
+    const currentPath = routerState.location.pathname
+    const sessionIdMatch = currentPath.match(/^\/chat\/[^\/]+\/(.+)$/)
+    return sessionIdMatch ? sessionIdMatch[1] : null
+  }
+  
+  const currentSessionId = getCurrentSessionId()
   const [isWidthResizing, setIsWidthResizing] = useAtom(
     rightPanelIsResizingAtom
   )
@@ -266,8 +278,8 @@ export function RightPanel({
               <div className='mb-4'>
                 <Button
                   className='w-full'
-                  color='default'
-                  variant='flat'
+                  color={currentSessionId === 'newChat' ? 'primary' : 'default'}
+                  variant={currentSessionId === 'newChat' ? 'solid' : 'flat'}
                   startContent={<PiPlus size={16} />}
                   onPress={onNewSession}
                 >
@@ -285,17 +297,38 @@ export function RightPanel({
                       {group.items.map((item) => (
                         <div
                           key={item.id}
-                          className='flex items-center gap-2 p-2 rounded-lg hover:bg-content2 cursor-pointer transition-colors'
+                          className={`flex items-start gap-2 p-3 rounded-lg cursor-pointer transition-colors ${
+                            currentSessionId === item.id
+                              ? 'bg-primary/10 border border-primary/20'
+                              : 'hover:bg-content2'
+                          }`}
                           onClick={() => onConversationClick?.(item.id)}
                         >
                           {item.starred ? (
-                            <PiStarFill className='text-sm text-primary fill-current' />
+                            <PiStarFill className='text-sm text-primary fill-current mt-0.5 flex-shrink-0' />
                           ) : (
-                            <PiStar className='text-sm text-foreground-400' />
+                            <PiStar className='text-sm text-foreground-400 mt-0.5 flex-shrink-0' />
                           )}
-                          <span className='text-sm text-foreground-700 flex-1 truncate'>
-                            {item.title}
-                          </span>
+                          <div className='flex-1 min-w-0'>
+                            <div className='flex items-center justify-between mb-1'>
+                              <span className={`text-sm font-medium truncate ${
+                                currentSessionId === item.id ? 'text-primary' : 'text-foreground'
+                              }`}>
+                                {item.title}
+                              </span>
+                              <span className='text-xs text-foreground-500 flex-shrink-0 ml-2'>
+                                {item.timestamp}
+                              </span>
+                            </div>
+                            {item.lastMessage && (
+                              <p className='text-xs text-foreground-500 truncate mb-1'>
+                                {item.lastMessage}
+                              </p>
+                            )}
+                            <span className='text-xs text-foreground-400'>
+                              {item.messageCount} 条消息
+                            </span>
+                          </div>
                         </div>
                       ))}
                     </div>
