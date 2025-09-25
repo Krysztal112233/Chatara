@@ -15,7 +15,7 @@ export function ChatHeader({ title, description, avatar }: ChatHeaderProps) {
           src={avatar || "https://i.pravatar.cc/150?u=current"}
         />
         <div>
-          <h2 className="font-semibold">{title}</h2>
+          <h2 className="font-semibold text-foreground">{title}</h2>
           <p className="text-xs text-default-500">{description}</p>
         </div>
       </div>

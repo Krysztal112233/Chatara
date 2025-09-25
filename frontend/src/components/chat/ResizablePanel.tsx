@@ -1,7 +1,9 @@
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { useAtom } from 'jotai'
-import { Button } from '@heroui/react'
+import { Button, Tooltip } from '@heroui/react'
+import { PiCaretLeft, PiCaretRight } from 'react-icons/pi'
 import { sidebarWidthAtom, sidebarCollapsedAtom, isResizingAtom, isHoveringCollapseAtom } from '@/store/sidebarStore'
+import { useWindowDimensions } from '@/hooks/useWindowDimensions'
 
 interface ResizablePanelProps {
   children: (isCollapsed: boolean) => ReactNode
@@ -18,6 +20,16 @@ export function ResizablePanel({
   const [isResizing, setIsResizing] = useAtom(isResizingAtom)
   const [isCollapsed, setIsCollapsed] = useAtom(sidebarCollapsedAtom)
   const [isHoveringCollapse, setIsHoveringCollapse] = useAtom(isHoveringCollapseAtom)
+  const { width: windowWidth } = useWindowDimensions()
+  const sidebarRef = useRef<HTMLDivElement>(null)
+  const minWidth = windowWidth * minWidthPercent
+  const maxWidth = windowWidth * maxWidthPercent
+
+  const calculateClampedWidth = (clientX: number) => {
+    const sidebarLeft = sidebarRef.current?.getBoundingClientRect().left || 0
+    const relativeX = clientX - sidebarLeft
+    return Math.max(minWidth, Math.min(maxWidth, relativeX))
+  }
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -26,13 +38,8 @@ export function ResizablePanel({
 
   const handleMouseMove = (e: MouseEvent) => {
     if (!isResizing) return
-
-    const containerWidth = window.innerWidth
-    const newWidth = e.clientX
-    const minWidth = containerWidth * minWidthPercent
-    const maxWidth = containerWidth * maxWidthPercent
-
-    const clampedWidth = Math.max(minWidth, Math.min(maxWidth, newWidth))
+    
+    const clampedWidth = calculateClampedWidth(e.clientX)
     setSidebarWidth(clampedWidth)
   }
 
@@ -67,10 +74,13 @@ export function ResizablePanel({
   }, [isResizing, handleMouseMove, handleMouseUp])
 
   return (
-    <>
+    <div className="relative flex">
       {/* 可调整大小的侧边栏 */}
       <div
-        className="bg-content1 border-r border-divider flex flex-col relative transition-all duration-300 ease-in-out group overflow-hidden"
+        ref={sidebarRef}
+        className={`bg-content1 flex flex-col relative group overflow-hidden ${
+          isCollapsed ? '' : 'border-r border-divider'
+        } ${isResizing ? '' : 'transition-all duration-300 ease-in-out'}`}
         style={{ width: `${isCollapsed ? 0 : sidebarWidth}px` }}
       >
         {children(isCollapsed)}
@@ -90,7 +100,7 @@ export function ResizablePanel({
         )}
       </div>
 
-      {/* 折叠按钮 - 位于侧边栏外部右侧边缘 */}
+      {/* 折叠按钮 - 位于侧边栏右侧边缘 */}
       {!isCollapsed && (
         <div
           className={`absolute top-1/2 -translate-y-1/2 z-10 transition-all duration-200 ${
@@ -100,36 +110,40 @@ export function ResizablePanel({
           onMouseEnter={() => setIsHoveringCollapse(true)}
           onMouseLeave={() => setIsHoveringCollapse(false)}
         >
-          <Button
-            isIconOnly
-            size="sm"
-            className="bg-background/80 backdrop-blur-sm border border-divider shadow-lg hover:bg-background/90 text-default-600 hover:text-primary transition-all duration-200 w-8 h-8 min-w-8"
-            onPress={toggleCollapse}
-          >
-            ‹
-          </Button>
+          <Tooltip content="折叠侧边栏" placement="right">
+            <Button
+              isIconOnly
+              size="sm"
+              className="bg-background/80 backdrop-blur-sm border border-divider shadow-lg hover:bg-background/90 text-default-600 hover:text-primary transition-all duration-200 w-8 h-8 min-w-8"
+              onPress={toggleCollapse}
+            >
+              <PiCaretLeft size={16} />
+            </Button>
+          </Tooltip>
         </div>
       )}
 
       {/* 折叠状态下的悬浮按钮 */}
       {isCollapsed && (
         <div
-          className="fixed left-0 top-1/2 -translate-y-1/2 z-20 transition-all duration-200"
+          className={`absolute left-0 top-1/2 -translate-y-1/2 z-20 transition-all duration-200 ${
+            isHoveringCollapse ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
+          }`}
           onMouseEnter={() => setIsHoveringCollapse(true)}
           onMouseLeave={() => setIsHoveringCollapse(false)}
         >
-          <Button
-            isIconOnly
-            size="sm"
-            className={`bg-background/80 backdrop-blur-sm border border-divider shadow-lg hover:bg-background/90 text-default-600 hover:text-primary transition-all duration-200 w-8 h-8 min-w-8 ml-2 ${
-              isHoveringCollapse ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
-            }`}
-            onPress={toggleCollapse}
-          >
-            ›
-          </Button>
+          <Tooltip content="展开侧边栏" placement="right">
+            <Button
+              isIconOnly
+              size="sm"
+              className="bg-background/80 backdrop-blur-sm border border-divider shadow-lg hover:bg-background/90 text-default-600 hover:text-primary transition-all duration-200 w-8 h-8 min-w-8 ml-2"
+              onPress={toggleCollapse}
+            >
+              <PiCaretRight size={16} />
+            </Button>
+          </Tooltip>
         </div>
       )}
-    </>
+    </div>
   )
 }

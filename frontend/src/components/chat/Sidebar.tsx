@@ -7,7 +7,9 @@ import {
   ScrollShadow,
   Divider,
   Chip,
+  Tooltip,
 } from '@heroui/react'
+import { PiPlus } from 'react-icons/pi'
 
 interface Chat {
   id: number
@@ -28,19 +30,26 @@ export function Sidebar({ chats, isCollapsed }: SidebarProps) {
     <>
       {/* 侧边栏内容 - 折叠时隐藏 */}
       <div className={`flex flex-col h-full transition-opacity duration-300 ${isCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-        {/* 顶部logo和搜索 */}
+        {/* 顶部logo和新建按钮 */}
         <div className="p-4 space-y-4">
-          <div className="flex items-center space-x-2">
-            <Avatar
-              size="sm"
-              src="https://i.pravatar.cc/150?u=logo"
-              className="w-8 h-8"
-            />
-            <h1 className="text-lg font-semibold">Demo User</h1>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <h1 className="text-lg font-semibold text-foreground">Chatara</h1>
+            </div>
+            <Tooltip content="新建角色" placement="bottom">
+              <Button
+                color="primary"
+                variant="flat"
+                size="sm"
+                isIconOnly
+              >
+                <PiPlus size={16} />
+              </Button>
+            </Tooltip>
           </div>
 
           <Input
-            placeholder="搜索对话..."
+            placeholder="搜索角色..."
             size="sm"
             variant="bordered"
             classNames={{
@@ -51,14 +60,6 @@ export function Sidebar({ chats, isCollapsed }: SidebarProps) {
             }}
           />
 
-          <Button
-            color="primary"
-            variant="flat"
-            className="w-full justify-start"
-            size="sm"
-          >
-            新建对话
-          </Button>
         </div>
 
         <Divider />
@@ -112,12 +113,6 @@ export function Sidebar({ chats, isCollapsed }: SidebarProps) {
           </div>
         </ScrollShadow>
 
-        {/* 底部 Logo */}
-        <div className="p-4 border-t border-divider">
-          <div className="text-center">
-            <h2 className="text-xl font-bold text-primary">Chatara - Slogan Here</h2>
-          </div>
-        </div>
       </div>
     </>
   )

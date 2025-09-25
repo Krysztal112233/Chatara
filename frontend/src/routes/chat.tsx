@@ -67,7 +67,7 @@ function Chat() {
       <Head>
         <title>聊天</title>
       </Head>
-      <div className='flex h-screen bg-background relative'>
+      <div className='flex h-full relative'>
         {/* 可调整大小的侧边栏 */}
         <ResizablePanel minWidthPercent={0.2} maxWidthPercent={0.8}>
           {(isCollapsed) => (

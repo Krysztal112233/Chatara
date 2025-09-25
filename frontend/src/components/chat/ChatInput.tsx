@@ -35,24 +35,6 @@ export function ChatInput({ onSend }: ChatInputProps) {
           </Button>
         </div>
         <div className="flex items-center justify-between mt-2">
-          <div className="flex items-center space-x-2">
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              className="text-default-500"
-            >
-              📎
-            </Button>
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              className="text-default-500"
-            >
-              🎤
-            </Button>
-          </div>
           <p className="text-xs text-default-500">
             按 Enter 发送，Shift + Enter 换行
           </p>
