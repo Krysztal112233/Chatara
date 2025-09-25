@@ -12,7 +12,7 @@ const head = createHead({
   init: [
     {
       title: 'Loading...',
-      titleTemplate: '%s - Chatara',
+      titleTemplate: '%s · Chatara',
     },
   ],
 })
