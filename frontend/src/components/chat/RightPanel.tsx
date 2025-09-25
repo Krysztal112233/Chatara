@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useAtom } from 'jotai'
-import { useRouterState } from '@tanstack/react-router'
+import { useParams, useRouterState } from '@tanstack/react-router'
 import { Button, Tooltip, Divider } from '@heroui/react'
 import {
   PiCaretLeft,
@@ -63,17 +63,10 @@ export function RightPanel({
   onRoleSettingsClick,
   onConversationClick,
 }: RightPanelProps) {
-  const routerState = useRouterState()
   const [panelWidth, setPanelWidth] = useAtom(rightPanelWidthAtom)
 
-  // 从路由中获取当前会话 ID
-  const getCurrentSessionId = (): string | null => {
-    const currentPath = routerState.location.pathname
-    const sessionIdMatch = currentPath.match(/^\/chat\/[^\/]+\/(.+)$/)
-    return sessionIdMatch ? sessionIdMatch[1] : null
-  }
-  
-  const currentSessionId = getCurrentSessionId()
+  const { sessionId: currentSessionId } = useParams({ strict: false })
+
   const [isWidthResizing, setIsWidthResizing] = useAtom(
     rightPanelIsResizingAtom
   )
@@ -311,9 +304,13 @@ export function RightPanel({
                           )}
                           <div className='flex-1 min-w-0'>
                             <div className='flex items-center justify-between mb-1'>
-                              <span className={`text-sm font-medium truncate ${
-                                currentSessionId === item.id ? 'text-primary' : 'text-foreground'
-                              }`}>
+                              <span
+                                className={`text-sm font-medium truncate ${
+                                  currentSessionId === item.id
+                                    ? 'text-primary'
+                                    : 'text-foreground'
+                                }`}
+                              >
                                 {item.title}
                               </span>
                               <span className='text-xs text-foreground-500 flex-shrink-0 ml-2'>

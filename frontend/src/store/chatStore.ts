@@ -1,5 +1,4 @@
 import { atom } from 'jotai'
-import { atomWithStorage } from 'jotai/utils'
 
 // 角色数据类型
 export interface Character {
@@ -42,8 +41,8 @@ export const characters: Character[] = [
   },
 ]
 
-// 当前选中的角色ID（持久化）
-export const selectedCharacterIdAtom = atomWithStorage<string | null>('selected-character-id', characters[0].id)
+// 当前选中的角色ID
+export const selectedCharacterIdAtom = atom<string | null>(null)
 
 // 当前选中的会话ID
 export const selectedSessionIdAtom = atom<string | null>(null)

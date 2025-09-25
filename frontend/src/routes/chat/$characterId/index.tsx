@@ -1,10 +1,13 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { ChatWelcome } from '@/components/chat/ChatWelcome'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/chat/$characterId/')({
-  component: CharacterWelcome,
+  beforeLoad: ({ params }) => {
+    throw redirect({
+      to: '/chat/$characterId/$sessionId',
+      params: {
+        characterId: params.characterId,
+        sessionId: 'newChat'
+      }
+    })
+  },
 })
-
-function CharacterWelcome() {
-  return <ChatWelcome />
-}

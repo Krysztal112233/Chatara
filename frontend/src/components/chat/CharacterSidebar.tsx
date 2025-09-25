@@ -9,37 +9,15 @@ import {
   Tooltip,
 } from '@heroui/react'
 import { PiPlus } from 'react-icons/pi'
-import { useAtom } from 'jotai'
-import { useEffect } from 'react'
-import { useNavigate, useRouterState } from '@tanstack/react-router'
-import { characters, selectedCharacterIdAtom, type Character } from '@/store/chatStore'
+import { characters, type Character } from '@/store/chatStore'
 
 interface CharacterSidebarProps {
   isCollapsed: boolean
+  selectedCharacterId: string | null
+  onCharacterSelect: (characterId: string) => void
 }
 
-export function CharacterSidebar({ isCollapsed }: CharacterSidebarProps) {
-  const navigate = useNavigate()
-  const routerState = useRouterState()
-  const [selectedCharacterId, setSelectedCharacterId] = useAtom(selectedCharacterIdAtom)
-
-  // 监听路由变化，同步角色选择状态
-  useEffect(() => {
-    const currentPath = routerState.location.pathname
-    const characterIdMatch = currentPath.match(/^\/chat\/([^\/]+)/)
-    if (characterIdMatch) {
-      const characterIdFromUrl = characterIdMatch[1]
-      if (characterIdFromUrl !== selectedCharacterId) {
-        setSelectedCharacterId(characterIdFromUrl)
-      }
-    }
-  }, [routerState.location.pathname, selectedCharacterId, setSelectedCharacterId])
-
-  const handleCharacterSelect = (characterId: string) => {
-    setSelectedCharacterId(characterId)
-    // 导航到角色欢迎页面
-    navigate({ to: `/chat/${characterId}` })
-  }
+export function CharacterSidebar({ isCollapsed, selectedCharacterId, onCharacterSelect }: CharacterSidebarProps) {
 
   return (
     <>
@@ -91,7 +69,7 @@ export function CharacterSidebar({ isCollapsed }: CharacterSidebarProps) {
                     : 'bg-transparent hover:bg-default-100'
                 }`}
                 shadow="none"
-                onPress={() => handleCharacterSelect(character.id)}
+                onPress={() => onCharacterSelect(character.id)}
               >
                 <CardBody className="p-3">
                   <div className="flex items-start space-x-3">

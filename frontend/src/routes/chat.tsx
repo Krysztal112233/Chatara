@@ -1,14 +1,16 @@
-import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  Outlet,
+  useNavigate,
+  useParams,
+  useRouteContext,
+  useRouterState,
+} from '@tanstack/react-router'
 import { CharacterSidebar } from '@/components/chat/CharacterSidebar'
 import { LeftPanel } from '@/components/chat/LeftPanel'
 import { RightPanel } from '@/components/chat/RightPanel'
 import { Head } from '@unhead/react'
-import { useAtom } from 'jotai'
-import { 
-  selectedCharacterAtom, 
-  selectedCharacterSessionsAtom,
-  selectedSessionIdAtom
-} from '@/store/chatStore'
+import { characters, getSessionsForCharacter } from '@/store/chatStore'
 import type { RoleSettings } from '@/components/chat/RightPanel'
 
 export const Route = createFileRoute('/chat')({
@@ -22,20 +24,23 @@ const getRoleSettingsForCharacter = (characterName: string): RoleSettings => ({
     `🎭 经典文学和影视角色扮演`,
     `🧠 ${characterName}的专业知识和独特视角`,
     `🗣️ 提供沉浸式语音对话体验`,
-    `💭 深度还原角色性格和说话方式`
-  ]
+    `💭 深度还原角色性格和说话方式`,
+  ],
 })
 
 function Chat() {
   const navigate = useNavigate()
-  const [selectedCharacter] = useAtom(selectedCharacterAtom)
-  const [characterSessions] = useAtom(selectedCharacterSessionsAtom)
-  const [, setSelectedSessionId] = useAtom(selectedSessionIdAtom)
+  const routerState = useRouterState()
+
+  const { characterId: selectedCharacterId } = useParams({ strict: false })
+  const selectedCharacter = characters.find(char => char.id === selectedCharacterId)
+  const isInCharacterPage = routerState.location.pathname !== '/chat'
+  const characterSessions = selectedCharacter
+    ? getSessionsForCharacter(selectedCharacter.id)
+    : []
 
   const handleNewSession = () => {
     if (selectedCharacter) {
-      console.log('新建会话，角色:', selectedCharacter.name)
-      setSelectedSessionId('newChat')
       navigate({ to: `/chat/${selectedCharacter.id}/newChat` })
     }
   }
@@ -46,41 +51,66 @@ function Chat() {
 
   const handleConversationClick = (conversationId: string) => {
     if (selectedCharacter) {
-      console.log('对话点击:', conversationId, '角色:', selectedCharacter?.name)
-      setSelectedSessionId(conversationId)
       navigate({ to: `/chat/${selectedCharacter.id}/${conversationId}` })
     }
   }
 
-  const roleSettings = selectedCharacter 
+  const handleCharacterSelect = (characterId: string) => {
+    navigate({ to: `/chat/${characterId}` })
+  }
+
+  const roleSettings = selectedCharacter
     ? getRoleSettingsForCharacter(selectedCharacter.name)
     : { title: '角色设定', descriptions: [] }
 
   return (
     <>
       <Head>
-        <title>{selectedCharacter ? `${selectedCharacter.name} - 角色对话` : '角色对话'}</title>
+        <title>
+          {selectedCharacter
+            ? `${selectedCharacter.name} - 角色对话`
+            : '角色对话'}
+        </title>
       </Head>
       <div className='flex h-full relative'>
+        {/* 移动端角色选择 - 只在 /chat 根路径显示 */}
+        {!isInCharacterPage && (
+          <div className='md:hidden flex-1'>
+            <CharacterSidebar
+              isCollapsed={false}
+              selectedCharacterId={selectedCharacter?.id || null}
+              onCharacterSelect={handleCharacterSelect}
+            />
+          </div>
+        )}
+
         {/* 桌面端左侧边栏 - 角色选择 */}
         <div className='hidden md:flex'>
           <LeftPanel minWidthPercent={0.15} maxWidthPercent={0.4}>
             {(isCollapsed) => (
-              <CharacterSidebar isCollapsed={isCollapsed} />
+              <CharacterSidebar
+                isCollapsed={isCollapsed}
+                selectedCharacterId={selectedCharacter?.id || null}
+                onCharacterSelect={handleCharacterSelect}
+              />
             )}
           </LeftPanel>
         </div>
 
         {/* 主聊天区域 */}
-        <div className='flex-1 flex flex-col'>
+        <div
+          className={`flex-1 flex flex-col ${
+            !isInCharacterPage ? 'hidden md:flex' : 'flex'
+          }`}
+        >
           <Outlet />
         </div>
 
-        {/* 桌面端右侧面板 - 只有选择了角色才显示 */}
-        {selectedCharacter && (
+        {/* 桌面端右侧面板 - 只有在角色页面且选择了角色才显示 */}
+        {selectedCharacter && isInCharacterPage && (
           <div className='hidden lg:flex'>
-            <RightPanel 
-              minWidthPercent={0.2} 
+            <RightPanel
+              minWidthPercent={0.2}
               maxWidthPercent={0.5}
               roleSettings={roleSettings}
               conversations={characterSessions}
