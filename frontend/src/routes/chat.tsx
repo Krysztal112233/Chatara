@@ -129,12 +129,14 @@ function Chat() {
         <title>角色对话</title>
       </Head>
       <div className='flex h-full relative'>
-        {/* 左侧边栏 */}
-        <LeftPanel minWidthPercent={0.15} maxWidthPercent={0.4}>
-          {(isCollapsed) => (
-            <Sidebar chats={mockChats} isCollapsed={isCollapsed} />
-          )}
-        </LeftPanel>
+        {/* 桌面端左侧边栏 */}
+        <div className='hidden md:flex'>
+          <LeftPanel minWidthPercent={0.15} maxWidthPercent={0.4}>
+            {(isCollapsed) => (
+              <Sidebar chats={mockChats} isCollapsed={isCollapsed} />
+            )}
+          </LeftPanel>
+        </div>
 
         {/* 主聊天区域 */}
         <div className='flex-1 flex flex-col'>
@@ -147,16 +149,18 @@ function Chat() {
           <ChatInput />
         </div>
 
-        {/* 右侧面板 */}
-        <RightPanel 
-          minWidthPercent={0.2} 
-          maxWidthPercent={0.5}
-          roleSettings={mockRoleSettings}
-          conversations={mockConversations}
-          onNewSession={handleNewSession}
-          onRoleSettingsClick={handleRoleSettingsClick}
-          onConversationClick={handleConversationClick}
-        />
+        {/* 桌面端右侧面板 */}
+        <div className='hidden lg:flex'>
+          <RightPanel 
+            minWidthPercent={0.2} 
+            maxWidthPercent={0.5}
+            roleSettings={mockRoleSettings}
+            conversations={mockConversations}
+            onNewSession={handleNewSession}
+            onRoleSettingsClick={handleRoleSettingsClick}
+            onConversationClick={handleConversationClick}
+          />
+        </div>
       </div>
     </>
   )
