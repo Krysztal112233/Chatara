@@ -20,7 +20,7 @@ export function LeftTabs() {
           <Avatar
             size="md"
             src="https://i.pravatar.cc/150?u=demo-user"
-            className="w-10 h-10 cursor-pointer"
+            className="w-10 h-10 cursor-pointer transition-all duration-200 hover:ring-2 hover:ring-primary hover:ring-offset-2 hover:ring-offset-background"
           />
         </Tooltip>
         

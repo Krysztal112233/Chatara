@@ -5,17 +5,17 @@ import { PiCaretLeft, PiCaretRight } from 'react-icons/pi'
 import { sidebarWidthAtom, sidebarCollapsedAtom, isResizingAtom, isHoveringCollapseAtom } from '@/store/sidebarStore'
 import { useWindowDimensions } from '@/hooks/useWindowDimensions'
 
-interface ResizablePanelProps {
+interface LeftPanelProps {
   children: (isCollapsed: boolean) => ReactNode
   minWidthPercent?: number
   maxWidthPercent?: number
 }
 
-export function ResizablePanel({
+export function LeftPanel({
   children,
   minWidthPercent = 0.2,
   maxWidthPercent = 0.8
-}: ResizablePanelProps) {
+}: LeftPanelProps) {
   const [sidebarWidth, setSidebarWidth] = useAtom(sidebarWidthAtom)
   const [isResizing, setIsResizing] = useAtom(isResizingAtom)
   const [isCollapsed, setIsCollapsed] = useAtom(sidebarCollapsedAtom)

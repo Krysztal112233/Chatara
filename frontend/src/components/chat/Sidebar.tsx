@@ -38,7 +38,7 @@ export function Sidebar({ chats, isCollapsed }: SidebarProps) {
             </div>
             <Tooltip content="新建角色" placement="bottom">
               <Button
-                color="primary"
+                color="default"
                 variant="flat"
                 size="sm"
                 isIconOnly
