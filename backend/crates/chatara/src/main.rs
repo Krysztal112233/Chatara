@@ -1,15 +1,14 @@
 use std::time::Duration;
 
-use log::{info, LevelFilter};
+use log::LevelFilter;
 use migration::MigratorTrait;
 use mimalloc::MiMalloc;
 use openidconnect::core::CoreJsonWebKeySet;
 use rocket::{catchers, Rocket};
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
-use uuid::Uuid;
 
 use crate::{
-    common::{fairings::Cors, requests::Sqid},
+    common::fairings::Cors,
     config::{ChataraConfig, DatabaseConfig},
     endpoints::{
         character::CharacterProfileEndpoint, history::HistoryEndpoint, root::RootEndpoint,
