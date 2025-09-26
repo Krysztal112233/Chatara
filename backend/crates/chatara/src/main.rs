@@ -1,7 +1,6 @@
 use std::time::Duration;
 
 use dotenvy::dotenv;
-use jsonwebtoken::jwk::JwkSet;
 use log::LevelFilter;
 use migration::MigratorTrait;
 use mimalloc::MiMalloc;
@@ -9,13 +8,15 @@ use rocket::{catchers, Rocket};
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 
 use crate::{
-    common::fairings::Cors,
+    common::{
+        fairings::{Cors, JwtValidatorRefresher},
+        jwt::JwtValidator,
+    },
     config::{ChataraConfig, DatabaseConfig},
     endpoints::{
         character::CharacterProfileEndpoint, history::HistoryEndpoint, root::RootEndpoint,
     },
     error::Error,
-    jwt::JwtValidator,
 };
 
 #[global_allocator]
@@ -27,7 +28,6 @@ mod endpoints;
 #[allow(unused)]
 mod entity;
 mod error;
-mod jwt;
 
 #[rocket::launch]
 async fn rocket() -> _ {
@@ -41,16 +41,17 @@ async fn rocket() -> _ {
     let chatara_config: ChataraConfig = figment.extract().unwrap();
 
     let database = setup_database(&chatara_config.database).await.unwrap();
-    let initial_jwks = setup_jwks(&chatara_config.jwks).await.unwrap();
+    let jwt_validator = setup_jwks(&chatara_config.jwks).await.unwrap();
     let sqid = setup_sqids(&chatara_config).await.unwrap();
 
     Rocket::custom(figment)
         .register("/", catchers![common::catcher::default])
         .manage(chatara_config)
         .manage(database)
-        .manage(initial_jwks)
+        .manage(jwt_validator)
         .manage(sqid)
         .attach(Cors)
+        .attach(JwtValidatorRefresher)
         .attach(HistoryEndpoint::adhoc())
         .attach(RootEndpoint::adhoc())
         .attach(CharacterProfileEndpoint::adhoc())
@@ -71,13 +72,9 @@ async fn setup_database(config: &DatabaseConfig) -> Result<DatabaseConnection, E
     Ok(database)
 }
 
-#[allow(unused)]
-async fn setup_jwks(jwks: &str) -> Result<JwtValidator, Error> {
-    let jwks = dbg!(jwks);
-
-    let jwks = reqwest::get(jwks).await?.json::<JwkSet>().await?;
-
-    Ok(JwtValidator::new(jwks))
+async fn setup_jwks(url: &str) -> Result<JwtValidator, Error> {
+    let jwt_validator = JwtValidator::new(url).await?;
+    Ok(jwt_validator)
 }
 
 async fn setup_sqids(config: &ChataraConfig) -> Result<sqids::Sqids, sqids::Error> {

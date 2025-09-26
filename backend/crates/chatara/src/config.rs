@@ -2,8 +2,8 @@ use std::str;
 
 use educe::Educe;
 use rocket::figment::{
-    providers::{Env, Format, Serialized, Toml},
     Figment, Profile,
+    providers::{Env, Format, Serialized, Toml},
 };
 use serde::{Deserialize, Serialize};
 

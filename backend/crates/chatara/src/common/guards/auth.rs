@@ -1,29 +1,23 @@
-use std::marker::PhantomData;
-
-use jsonwebtoken::decode_header;
-use openidconnect::{
-    core::{CoreJsonWebKey, CoreJsonWebKeySet},
-    JsonWebKey,
-};
+use log::error;
 use rocket::{
-    async_trait,
+    Request, async_trait,
     http::Status,
     request::{FromRequest, Outcome},
-    Request,
+};
+
+use crate::{
+    common::jwt::{Auth0Claim, JwtValidator},
+    error::Error,
 };
 
 #[derive(Debug)]
-pub struct AuthGuard<T> {
+pub struct AuthGuard {
     pub uid: String,
-    _p: PhantomData<T>,
 }
 
 #[async_trait]
-impl<'r, T> FromRequest<'r> for AuthGuard<T>
-where
-    T: AuthenticationProviderDetector,
-{
-    type Error = jsonwebtoken::errors::Error;
+impl<'r> FromRequest<'r> for AuthGuard {
+    type Error = Error;
 
     async fn from_request(req: &'r Request<'_>) -> Outcome<Self, Self::Error> {
         let auth_header = req.headers().get_one("Authorization");
@@ -34,65 +28,28 @@ where
                     Status::Unauthorized,
                     jsonwebtoken::errors::Error::from(
                         jsonwebtoken::errors::ErrorKind::MissingRequiredClaim("auth".to_owned()),
-                    ),
-                ))
+                    )
+                    .into(),
+                ));
             }
         };
 
-        // 获取 kid
-        let kid = match decode_header(token) {
-            Ok(h) => h.kid,
-            Err(e) => return Outcome::Error((Status::Unauthorized, e)),
-        }
-        .unwrap_or_default();
-
-        let jwks = req
+        let validator = req
             .rocket()
-            .state::<CoreJsonWebKeySet>()
-            .expect("`CoreJsonWebKeySet` not managed");
+            .state::<JwtValidator>()
+            .expect("`JwtValidator` not managed");
 
-        let uid = match T::detect_uid(token) {
-            Some(uid) => uid,
-            None => {
-                return Outcome::Error((
-                    Status::Unauthorized,
-                    jsonwebtoken::errors::Error::from(
-                        jsonwebtoken::errors::ErrorKind::MissingRequiredClaim("auth".to_owned()),
-                    ),
-                ))
+        let claim = validator.decode::<Auth0Claim>(token).await;
+        match claim {
+            Ok(ref t) => t,
+            Err(e) => {
+                error!("failed decoding jwt {e}");
+                return Outcome::Error((Status::Unauthorized, e));
             }
         };
 
         Outcome::Success(AuthGuard {
-            uid,
-            _p: PhantomData::<T>,
+            uid: claim.unwrap().claims.sub,
         })
-    }
-}
-
-fn verify(jwks: &CoreJsonWebKeySet, token: &str) -> bool {
-    for ele in jwks.keys() {}
-
-    false
-}
-
-trait AuthenticationProviderDetector {
-    fn detect_uid<T>(jwt: T) -> Option<String>
-    where
-        T: Into<String>;
-}
-
-pub(crate) mod detector {
-    use crate::common::guards::auth::AuthenticationProviderDetector;
-
-    pub struct Auth0Detector;
-
-    impl AuthenticationProviderDetector for Auth0Detector {
-        fn detect_uid<T>(jwt: T) -> Option<String>
-        where
-            T: Into<String>,
-        {
-            todo!()
-        }
     }
 }

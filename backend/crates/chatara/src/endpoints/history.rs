@@ -1,4 +1,4 @@
-use rocket::{delete, fairing::AdHoc, get, post, routes, State};
+use rocket::{State, delete, fairing::AdHoc, get, post, routes};
 use sqids::Sqids;
 use uuid::Uuid;
 

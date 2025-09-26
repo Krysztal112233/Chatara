@@ -1,15 +1,16 @@
 use educe::Educe;
 use rocket::{
+    Response,
     http::{ContentType, Status},
     response::Responder,
-    serde::{json::Value, Deserialize, Serialize},
-    Response,
+    serde::{Deserialize, Serialize, json::Value},
 };
 
 pub mod catcher;
 pub mod fairings;
 pub mod guards;
 pub mod helpers;
+pub mod jwt;
 pub mod requests;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Educe)]
@@ -45,6 +46,12 @@ impl CommonResponse {
 
     pub fn set_data(self, data: Value) -> Self {
         Self { data, ..self }
+    }
+}
+
+impl From<Status> for CommonResponse {
+    fn from(value: Status) -> Self {
+        Self::with_msg(value.code, value.to_string())
     }
 }
 

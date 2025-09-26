@@ -1,6 +1,6 @@
 use chrono::Local;
 use rocket::async_trait;
-use sea_orm::{prelude::*, ActiveValue::*, ConnectionTrait, EntityTrait};
+use sea_orm::{ActiveValue::*, ConnectionTrait, EntityTrait, prelude::*};
 use serde_json::json;
 
 use crate::{

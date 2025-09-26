@@ -1,10 +1,10 @@
-use rocket::{delete, fairing::AdHoc, get, post, routes, serde::json::Json, State};
+use rocket::{State, delete, fairing::AdHoc, get, post, routes, serde::json::Json};
 use sea_orm::{DatabaseConnection, EntityTrait, QueryOrder};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use uuid::Uuid;
 
 use crate::{
-    common::{requests::Sqid, CommonResponse},
+    common::{CommonResponse, requests::Sqid},
     entity::{character_profiles, prelude::*},
     error,
 };
