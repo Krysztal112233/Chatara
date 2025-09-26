@@ -1,6 +1,8 @@
 use rocket::{delete, fairing::AdHoc, get, post, routes};
 use uuid::Uuid;
 
+use crate::common::requests::Sqid;
+
 pub struct HistoryEndpoint;
 
 impl HistoryEndpoint {
@@ -22,19 +24,19 @@ impl HistoryEndpoint {
 }
 
 #[get("/?<user>")]
-async fn get_history_indexes_of_user(user: Uuid) {}
+async fn get_history_indexes_of_user(user: Sqid) {}
 
 #[get("/")]
 async fn get_history_indexes() {}
 
 #[post("/?<profile>")]
-async fn create_history_index(profile: Uuid) {}
+async fn create_history_index(profile: Sqid) {}
 
 #[delete("/<history_index>")]
-async fn delete_histories(history_index: Uuid) {}
+async fn delete_histories(history_index: Sqid) {}
 
 #[post("/<history_index>")]
-async fn create_histories(history_index: Uuid) {}
+async fn create_histories(history_index: Sqid) {}
 
 #[get("/<history_index>")]
-async fn get_histories(history_index: Uuid) {}
+async fn get_histories(history_index: Sqid) {}

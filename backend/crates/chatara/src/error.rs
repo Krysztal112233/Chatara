@@ -7,4 +7,7 @@ pub enum Error {
 
     #[error("{0}")]
     Reqwest(#[from] reqwest::Error),
+
+    #[error("{0}")]
+    Sqid(#[from] sqids::Error)
 }

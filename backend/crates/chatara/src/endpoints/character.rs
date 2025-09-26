@@ -4,7 +4,7 @@ use serde_json::{json, Value};
 use uuid::Uuid;
 
 use crate::{
-    common::CommonResponse,
+    common::{requests::Sqid, CommonResponse},
     entity::{character_profiles, prelude::*},
     error,
 };
@@ -36,10 +36,10 @@ async fn get_characters(db: &State<DatabaseConnection>) {
 }
 
 #[delete("/<character>")]
-async fn delete_character(character: Uuid) {}
+async fn delete_character(character: Sqid) {}
 
 #[get("/<character>")]
-async fn get_character(character: Uuid) {}
+async fn get_character(character: Sqid) {}
 
 #[post("/", data = "<profile>")]
 async fn create_character(profile: Json<Value>) {}

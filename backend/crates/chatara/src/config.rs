@@ -12,6 +12,7 @@ pub struct ChataraConfig {
     pub cors: CorsConfig,
     pub database: DatabaseConfig,
     pub jwks: String,
+    pub sqid_dict: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Educe)]

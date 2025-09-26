@@ -2,6 +2,7 @@
 min_connections = 16
 max_connections = 128
 connect_timeout = 16
+sqids_dict = "k3G7CsPW92uEU0YzVliwDdHXLajZrfxNhobJQAeTmnFIRcMvKt51Oyq4Bg6Sp8"
 
 [debug.database]
 url = "postgres://postgres:GVhI4w5Rdt56TTaiqEdsH6pI4bXOWQDA@localhost/postgres"

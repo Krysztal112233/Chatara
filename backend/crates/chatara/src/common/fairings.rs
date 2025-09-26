@@ -1,14 +1,11 @@
-use jsonwebtoken::jwk;
-use openidconnect::core::CoreJsonWebKeySet;
 use rocket::{
     async_trait,
     fairing::{Fairing, Info, Kind},
     http::Header,
-    Build, Orbit, Request, Response, Rocket,
+    Request, Response,
 };
-use url::Url;
 
-use crate::{config::ChataraConfig, error::Error};
+use crate::config::ChataraConfig;
 
 pub struct Cors;
 

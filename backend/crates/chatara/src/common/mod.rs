@@ -10,6 +10,7 @@ pub mod catcher;
 pub mod fairings;
 pub mod guards;
 pub mod helpers;
+pub mod requests;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Educe)]
 #[educe(Default)]

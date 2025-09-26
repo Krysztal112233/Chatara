@@ -1,12 +1,16 @@
 use std::marker::PhantomData;
 
+use jsonwebtoken::decode_header;
+use openidconnect::{
+    core::{CoreJsonWebKey, CoreJsonWebKeySet},
+    JsonWebKey,
+};
 use rocket::{
     async_trait,
     http::Status,
     request::{FromRequest, Outcome},
     Request,
 };
-use uuid::Uuid;
 
 #[derive(Debug)]
 pub struct AuthGuard<T> {
@@ -35,6 +39,18 @@ where
             }
         };
 
+        // 获取 kid
+        let kid = match decode_header(token) {
+            Ok(h) => h.kid,
+            Err(e) => return Outcome::Error((Status::Unauthorized, e)),
+        }
+        .unwrap_or_default();
+
+        let jwks = req
+            .rocket()
+            .state::<CoreJsonWebKeySet>()
+            .expect("`CoreJsonWebKeySet` not managed");
+
         let uid = match T::detect_uid(token) {
             Some(uid) => uid,
             None => {
@@ -54,19 +70,29 @@ where
     }
 }
 
+fn verify(jwks: &CoreJsonWebKeySet, token: &str) -> bool {
+    for ele in jwks.keys() {}
+
+    false
+}
+
 trait AuthenticationProviderDetector {
     fn detect_uid<T>(jwt: T) -> Option<String>
     where
         T: Into<String>;
 }
 
-pub struct Auth0Detector;
+pub(crate) mod detector {
+    use crate::common::guards::auth::AuthenticationProviderDetector;
 
-impl AuthenticationProviderDetector for Auth0Detector {
-    fn detect_uid<T>(jwt: T) -> Option<String>
-    where
-        T: Into<String>,
-    {
-        todo!()
+    pub struct Auth0Detector;
+
+    impl AuthenticationProviderDetector for Auth0Detector {
+        fn detect_uid<T>(jwt: T) -> Option<String>
+        where
+            T: Into<String>,
+        {
+            todo!()
+        }
     }
 }
