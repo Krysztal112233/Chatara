@@ -1,14 +1,15 @@
 use std::time::Duration;
 
-use log::LevelFilter;
+use log::{info, LevelFilter};
 use migration::MigratorTrait;
 use mimalloc::MiMalloc;
 use openidconnect::core::CoreJsonWebKeySet;
 use rocket::{catchers, Rocket};
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
+use uuid::Uuid;
 
 use crate::{
-    common::fairings::Cors,
+    common::{fairings::Cors, requests::Sqid},
     config::{ChataraConfig, DatabaseConfig},
     endpoints::{
         character::CharacterProfileEndpoint, history::HistoryEndpoint, root::RootEndpoint,
@@ -66,6 +67,7 @@ async fn setup_database(config: &DatabaseConfig) -> Result<DatabaseConnection, E
     Ok(database)
 }
 
+#[allow(unused)]
 async fn setup_jwks(jwks: &str) -> Result<CoreJsonWebKeySet, Error> {
     Ok(reqwest::get(jwks).await?.json().await?)
 }

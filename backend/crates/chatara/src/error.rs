@@ -9,5 +9,5 @@ pub enum Error {
     Reqwest(#[from] reqwest::Error),
 
     #[error("{0}")]
-    Sqid(#[from] sqids::Error)
+    Sqid(#[from] sqids::Error),
 }

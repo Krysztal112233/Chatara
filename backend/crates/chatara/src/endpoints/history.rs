@@ -1,4 +1,5 @@
-use rocket::{delete, fairing::AdHoc, get, post, routes};
+use rocket::{delete, fairing::AdHoc, get, post, routes, State};
+use sqids::Sqids;
 use uuid::Uuid;
 
 use crate::common::requests::Sqid;
@@ -24,7 +25,7 @@ impl HistoryEndpoint {
 }
 
 #[get("/?<user>")]
-async fn get_history_indexes_of_user(user: Sqid) {}
+async fn get_history_indexes_of_user(user: Sqid, sqid: &State<Sqids>) {}
 
 #[get("/")]
 async fn get_history_indexes() {}
