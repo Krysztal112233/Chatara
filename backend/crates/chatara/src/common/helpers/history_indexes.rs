@@ -3,12 +3,13 @@ use std::collections::HashMap;
 use chrono::Local;
 use rocket::async_trait;
 use sea_orm::{
-    ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter,
+    ActiveModelTrait, ActiveValue::Set, ColumnTrait, Condition, ConnectionTrait, DbErr,
+    EntityTrait, QueryFilter,
 };
-use serde_json::json;
 use uuid::Uuid;
 
 use crate::{
+    common::helpers::user,
     entity::{history_indexes, prelude::*},
     error::Error,
 };
@@ -22,6 +23,24 @@ pub trait HistoryIndexesHelper {
     {
         HistoryIndexes::delete_many()
             .filter(history_indexes::Column::Id.is_in(ids))
+            .exec(db)
+            .await?;
+        Ok(())
+    }
+
+    async fn delete_history_of_user<I, T, C>(ids: I, user: T, db: &C) -> Result<(), Error>
+    where
+        I: IntoIterator<Item = Uuid> + Send,
+        T: Into<String> + Send,
+        C: ConnectionTrait,
+    {
+        let user = user.into();
+        HistoryIndexes::delete_many()
+            .filter(
+                Condition::all()
+                    .add(history_indexes::Column::Id.is_in(ids))
+                    .add(history_indexes::Column::BelongUser.eq(user)),
+            )
             .exec(db)
             .await?;
         Ok(())
@@ -47,29 +66,40 @@ pub trait HistoryIndexesHelper {
         .await?)
     }
 
-    async fn get_histories_of_user<C>(
-        user: Uuid,
+    async fn get_history_indexes_of_user<T, C>(
+        user: T,
         db: &C,
-    ) -> Result<HashMap<Uuid, serde_json::Value>, Error>
+    ) -> Result<Vec<history_indexes::Model>, Error>
     where
+        T: Into<String> + Send,
         C: ConnectionTrait,
     {
         Ok(HistoryIndexes::find()
-            .filter(history_indexes::Column::BelongUser.eq(user))
+            .filter(history_indexes::Column::BelongUser.eq(user.into()))
             .all(db)
+            .await?)
+    }
+
+    async fn get_history_index_of_user<T, C>(
+        user: T,
+        id: Uuid,
+        db: &C,
+    ) -> Result<history_indexes::Model, Error>
+    where
+        T: Into<String> + Send,
+        C: ConnectionTrait,
+    {
+        let user = user.into();
+
+        Ok(HistoryIndexes::find()
+            .filter(
+                Condition::all()
+                    .add(history_indexes::Column::BelongUser.eq(&user))
+                    .add(history_indexes::Column::Id.eq(id)),
+            )
+            .one(db)
             .await?
-            .into_iter()
-            .map(|it| {
-                (
-                    it.id,
-                    json!({
-                    "created_at": it.created_at,
-                    "updated_at": it.updated_at,
-                    "belong_character_profile": it.belong_character_profile,
-                    }),
-                )
-            })
-            .collect::<HashMap<_, _>>())
+            .ok_or(Error::Db(DbErr::RecordNotFound(format!("{user}/?"))))?)
     }
 }
 

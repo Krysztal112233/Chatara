@@ -40,3 +40,19 @@ impl Display for Sqid {
         self.0.fmt(f)
     }
 }
+
+pub trait ToSqid {
+    fn to_sqid(self) -> Sqid;
+    fn to_sqid_with(self, codec: &sqids::Sqids) -> Sqid;
+}
+
+impl ToSqid for Uuid {
+    fn to_sqid(self) -> Sqid {
+        let (hi, lo) = self.as_u64_pair();
+        Sqid(sqids::Sqids::default().encode(&[hi, lo]).unwrap())
+    }
+
+    fn to_sqid_with(self, codec: &sqids::Sqids) -> Sqid {
+        Sqid::from_uuid(codec, self).unwrap()
+    }
+}

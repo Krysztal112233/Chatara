@@ -1,12 +1,18 @@
 use log::error;
 use rocket::{
-    Request, async_trait,
+    async_trait,
     http::Status,
     request::{FromRequest, Outcome},
+    Request,
 };
+use sea_orm::DatabaseConnection;
 
+use crate::entity::prelude::*;
 use crate::{
-    common::jwt::{Auth0Claim, JwtValidator},
+    common::{
+        helpers::user::UserHelper,
+        jwt::{Auth0Claim, JwtValidator},
+    },
     error::Error,
 };
 
@@ -48,8 +54,13 @@ impl<'r> FromRequest<'r> for AuthGuard {
             }
         };
 
-        Outcome::Success(AuthGuard {
-            uid: claim.unwrap().claims.sub,
-        })
+        let uid = claim.unwrap().claims.sub;
+
+        let db = req.rocket().state::<DatabaseConnection>().unwrap();
+        let _ = Users::create(&uid, db)
+            .await
+            .inspect_err(|e| error!("failed to created user: {e}"));
+
+        Outcome::Success(AuthGuard { uid })
     }
 }

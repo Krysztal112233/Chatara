@@ -1,9 +1,9 @@
 use reqwest::StatusCode;
 use rocket::{fairing::AdHoc, get, http::Status, options, routes};
-use serde_json::json;
+use serde_json::{json, Value};
 
 use crate::{
-    common::{CommonResponse, guards::auth::AuthGuard},
+    common::{guards::auth::AuthGuard, CommonResponse},
     error::Error,
 };
 
@@ -21,7 +21,7 @@ impl RootEndpoint {
 pub async fn all_options() {}
 
 #[get("/")]
-pub async fn test_auth0(auth: Option<AuthGuard>) -> CommonResponse {
+pub async fn test_auth0(auth: Option<AuthGuard>) -> CommonResponse<Value> {
     match auth {
         Some(a) => CommonResponse::from(Status::Ok).set_data(json!({"uid": a.uid})),
         None => {

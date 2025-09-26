@@ -19,7 +19,7 @@ pub enum Error {
     Jwt(#[from] jsonwebtoken::errors::Error),
 }
 
-impl From<Error> for CommonResponse {
+impl From<Error> for CommonResponse<()> {
     fn from(value: Error) -> Self {
         match value {
             Error::Db(DbErr::RecordNotFound(r)) => {
