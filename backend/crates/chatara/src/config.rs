@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 pub struct ChataraConfig {
     pub cors: CorsConfig,
     pub database: DatabaseConfig,
+    pub jwks: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Educe)]

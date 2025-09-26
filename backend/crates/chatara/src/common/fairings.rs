@@ -1,14 +1,18 @@
+use jsonwebtoken::jwk;
+use openidconnect::core::CoreJsonWebKeySet;
 use rocket::{
+    async_trait,
     fairing::{Fairing, Info, Kind},
     http::Header,
-    Request, Response,
+    Build, Orbit, Request, Response, Rocket,
 };
+use url::Url;
 
-use crate::config::ChataraConfig;
+use crate::{config::ChataraConfig, error::Error};
 
 pub struct Cors;
 
-#[rocket::async_trait]
+#[async_trait]
 impl Fairing for Cors {
     fn info(&self) -> Info {
         Info {

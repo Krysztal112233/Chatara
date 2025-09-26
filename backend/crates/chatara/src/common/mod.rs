@@ -8,6 +8,7 @@ use rocket::{
 
 pub mod catcher;
 pub mod fairings;
+pub mod guards;
 pub mod helpers;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Educe)]

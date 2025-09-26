@@ -4,4 +4,7 @@ use thiserror::Error;
 pub enum Error {
     #[error("{0}")]
     Db(#[from] sea_orm::DbErr),
+
+    #[error("{0}")]
+    Reqwest(#[from] reqwest::Error),
 }

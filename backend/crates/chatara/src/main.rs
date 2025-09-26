@@ -1,9 +1,10 @@
 use std::time::Duration;
 
 use log::LevelFilter;
-use migration::MigratorTrait;
+use migration::{ExprTrait, MigratorTrait};
 use mimalloc::MiMalloc;
-use rocket::{catchers, Rocket};
+use openidconnect::core::CoreJsonWebKeySet;
+use rocket::{catchers, fairing::AdHoc, Rocket};
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 
 use crate::{
@@ -34,14 +35,14 @@ async fn rocket() -> _ {
     let figment = ChataraConfig::get_figment();
     let chatara_config: ChataraConfig = figment.extract().unwrap();
 
-    let database = setup_database(&chatara_config.database)
-        .await
-        .expect("cannot connected to database.");
+    let database = setup_database(&chatara_config.database).await.unwrap();
+    let initial_jwks = setup_jwks(&chatara_config.jwks).await.unwrap();
 
     Rocket::custom(figment)
         .register("/", catchers![common::catcher::default])
         .manage(chatara_config)
         .manage(database)
+        .manage(initial_jwks)
         .attach(Cors)
         .attach(HistoryEndpoint::adhoc())
         .attach(RootEndpoint::adhoc())
@@ -61,4 +62,8 @@ async fn setup_database(config: &DatabaseConfig) -> Result<DatabaseConnection, E
     }
 
     Ok(database)
+}
+
+async fn setup_jwks(jwks: &str) -> Result<CoreJsonWebKeySet, Error> {
+    Ok(reqwest::get(jwks).await?.json().await?)
 }
