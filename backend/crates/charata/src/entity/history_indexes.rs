@@ -9,7 +9,7 @@ pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: Uuid,
     pub created_at: DateTimeWithTimeZone,
-    pub belong_user: Uuid,
+    pub belong_user: String,
     pub belong_character_profile: Uuid,
     pub updated_at: DateTimeWithTimeZone,
 }

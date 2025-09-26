@@ -13,6 +13,7 @@ static FK_HISTORY_H_INDEX_REF: &str = "fk_history_h_index_ref";
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+        // -------- enum --------
         manager
             .create_type(
                 Type::create()
@@ -25,17 +26,17 @@ impl MigrationTrait for Migration {
                     .to_owned(),
             )
             .await?;
-
+        // -------- users --------
         manager
             .create_table(
                 Table::create()
                     .if_not_exists()
                     .table(UsersTable::Users)
-                    .col(pk_uuid(UsersTable::Id))
+                    .col(ColumnDef::new(UsersTable::Id).string().primary_key())
                     .to_owned(),
             )
             .await?;
-
+        // -------- character_profiles --------
         manager
             .create_table(
                 Table::create()
@@ -48,7 +49,7 @@ impl MigrationTrait for Migration {
                     .to_owned(),
             )
             .await?;
-
+        // -------- history_indexes --------
         manager
             .create_table(
                 Table::create()
@@ -56,12 +57,12 @@ impl MigrationTrait for Migration {
                     .table(HistoryIndexesTable::HistoryIndexes)
                     .col(pk_uuid(HistoryIndexesTable::Id))
                     .col(timestamp_with_time_zone(HistoryIndexesTable::CreatedAt))
-                    .col(uuid(HistoryIndexesTable::BelongUser))
+                    .col(string(HistoryIndexesTable::BelongUser))
                     .col(uuid(HistoryIndexesTable::BelongCharacterProfile))
                     .to_owned(),
             )
             .await?;
-
+        // -------- histories --------
         manager
             .create_table(
                 Table::create()
@@ -83,11 +84,7 @@ impl MigrationTrait for Migration {
                     .to_owned(),
             )
             .await?;
-
-        // 把所有的表都创建完了？
-        //
-        // 该发挥关系型数据库的巨大优点了：开始构建外键
-
+        // -------- FK --------
         manager
             .create_foreign_key(
                 ForeignKey::create()
@@ -105,7 +102,6 @@ impl MigrationTrait for Migration {
                     .to_owned(),
             )
             .await?;
-
         manager
             .create_foreign_key(
                 ForeignKey::create()
@@ -120,7 +116,6 @@ impl MigrationTrait for Migration {
                     .to_owned(),
             )
             .await?;
-
         manager
             .create_foreign_key(
                 ForeignKey::create()
@@ -135,12 +130,10 @@ impl MigrationTrait for Migration {
                     .to_owned(),
             )
             .await?;
-
         Ok(())
     }
-
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        // 1. 删外键
+        // 按依赖逆序删除即可
         manager
             .drop_foreign_key(
                 ForeignKey::drop()
@@ -149,7 +142,6 @@ impl MigrationTrait for Migration {
                     .to_owned(),
             )
             .await?;
-
         manager
             .drop_foreign_key(
                 ForeignKey::drop()
@@ -158,7 +150,6 @@ impl MigrationTrait for Migration {
                     .to_owned(),
             )
             .await?;
-
         manager
             .drop_foreign_key(
                 ForeignKey::drop()
@@ -167,45 +158,29 @@ impl MigrationTrait for Migration {
                     .to_owned(),
             )
             .await?;
-
-        // 2. 删表（和创建顺序相反）
+        manager
+            .drop_table(Table::drop().table(HistoriesTable::Histories).to_owned())
+            .await?;
         manager
             .drop_table(
                 Table::drop()
-                    .if_exists()
-                    .table(HistoriesTable::Histories)
+                    .table(HistoryIndexesTable::HistoryIndexes)
                     .to_owned(),
             )
             .await?;
-
         manager
             .drop_table(
                 Table::drop()
-                    .if_exists()
                     .table(CharacterProfilesTable::CharacterProfiles)
                     .to_owned(),
             )
             .await?;
-
         manager
-            .drop_table(
-                Table::drop()
-                    .if_exists()
-                    .table(UsersTable::Users)
-                    .to_owned(),
-            )
+            .drop_table(Table::drop().table(UsersTable::Users).to_owned())
             .await?;
-
-        // 3. 删枚举类型
         manager
-            .drop_type(
-                Type::drop()
-                    .if_exists()
-                    .name(ChatRoleEnum::ChatRole)
-                    .to_owned(),
-            )
+            .drop_type(Type::drop().name(ChatRoleEnum::ChatRole).to_owned())
             .await?;
-
         Ok(())
     }
 }

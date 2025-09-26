@@ -27,19 +27,20 @@ pub trait HistoryIndexesHelper {
         Ok(())
     }
 
-    async fn create_history<C>(
-        user: Uuid,
+    async fn create_history<T, C>(
+        user: T,
         character: Uuid,
         db: &C,
     ) -> Result<history_indexes::Model, Error>
     where
+        T: Into<String> + Send,
         C: ConnectionTrait,
     {
         Ok(history_indexes::ActiveModel {
             id: Set(Uuid::now_v7()),
             created_at: Set(Local::now().into()),
             updated_at: Set(Local::now().into()),
-            belong_user: Set(user),
+            belong_user: Set(user.into()),
             belong_character_profile: Set(character),
         }
         .insert(db)
