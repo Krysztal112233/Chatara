@@ -374,6 +374,7 @@ name = "chatara"
 version = "0.0.1"
 dependencies = [
  "chrono",
+ "dotenvy",
  "educe",
  "env_logger",
  "jsonwebtoken",
