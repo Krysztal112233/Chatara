@@ -3,7 +3,7 @@ import { Head } from '@unhead/react'
 import { MessageList } from '@/components/chat/MessageList'
 import { ChatInput } from '@/components/chat/ChatInput'
 
-export const Route = createFileRoute('/chat/$characterId/$sessionId')({
+export const Route = createFileRoute('/_chat/chat/$characterId/$sessionId')({
   component: ChatSession,
   beforeLoad: ({ params }) => {
     // 验证会话 ID，这里可以根据实际需求验证
@@ -15,7 +15,12 @@ export const Route = createFileRoute('/chat/$characterId/$sessionId')({
 
 // 模拟会话消息数据
 const getMessagesForSession = (characterId: string, sessionId: string) => {
-  const messagesMap: Record<string, Record<string, any[]>> = {
+  const messagesMap: Record<string, Record<string, {
+    id: number
+    content: string
+    isUser: boolean
+    time: string
+  }[]>> = {
     'gYcxwe': { // 哈利波特
       'mK8dLr': [
         {
@@ -168,7 +173,7 @@ const getMessagesForSession = (characterId: string, sessionId: string) => {
     },
   }
 
-  return messagesMap[characterId]?.[sessionId] || []
+  return messagesMap[characterId][sessionId]
 }
 
 function ChatSession() {

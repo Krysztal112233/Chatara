@@ -3,7 +3,6 @@ import {
   Outlet,
   useNavigate,
   useParams,
-  useRouteContext,
   useRouterState,
 } from '@tanstack/react-router'
 import { CharacterSidebar } from '@/components/chat/CharacterSidebar'
@@ -13,7 +12,7 @@ import { Head } from '@unhead/react'
 import { characters, getSessionsForCharacter } from '@/store/chatStore'
 import type { RoleSettings } from '@/components/chat/RightPanel'
 
-export const Route = createFileRoute('/chat')({
+export const Route = createFileRoute('/_chat/chat')({
   component: Chat,
 })
 
@@ -29,11 +28,13 @@ const getRoleSettingsForCharacter = (characterName: string): RoleSettings => ({
 })
 
 function Chat() {
-  const navigate = useNavigate()
+  const navigate = useNavigate({ from: '/chat' })
   const routerState = useRouterState()
 
   const { characterId: selectedCharacterId } = useParams({ strict: false })
-  const selectedCharacter = characters.find(char => char.id === selectedCharacterId)
+  const selectedCharacter = characters.find(
+    (char) => char.id === selectedCharacterId
+  )
   const isInCharacterPage = routerState.location.pathname !== '/chat'
   const characterSessions = selectedCharacter
     ? getSessionsForCharacter(selectedCharacter.id)
@@ -41,7 +42,13 @@ function Chat() {
 
   const handleNewSession = () => {
     if (selectedCharacter) {
-      navigate({ to: `/chat/${selectedCharacter.id}/newChat` })
+      navigate({
+        to: '/chat/$characterId/$sessionId',
+        params: {
+          characterId: selectedCharacter.id,
+          sessionId: 'newChat',
+        },
+      }).catch(console.error)
     }
   }
 
@@ -51,12 +58,23 @@ function Chat() {
 
   const handleConversationClick = (conversationId: string) => {
     if (selectedCharacter) {
-      navigate({ to: `/chat/${selectedCharacter.id}/${conversationId}` })
+      navigate({
+        to: '/chat/$characterId/$sessionId',
+        params: {
+          characterId: selectedCharacter.id,
+          sessionId: conversationId,
+        },
+      }).catch(console.error)
     }
   }
 
   const handleCharacterSelect = (characterId: string) => {
-    navigate({ to: `/chat/${characterId}` })
+    navigate({
+      to: '/chat/$characterId',
+      params: {
+        characterId,
+      },
+    }).catch(console.error)
   }
 
   const roleSettings = selectedCharacter

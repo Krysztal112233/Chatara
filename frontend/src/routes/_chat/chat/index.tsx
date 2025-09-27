@@ -3,7 +3,7 @@ import { useAtom } from 'jotai'
 import { useEffect } from 'react'
 import { selectedCharacterIdAtom } from '@/store/chatStore'
 
-export const Route = createFileRoute('/chat/')({
+export const Route = createFileRoute('/_chat/chat/')({
   component: ChatIndex,
 })
 

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useAtom } from 'jotai'
-import { useParams, useRouterState } from '@tanstack/react-router'
+import { useParams } from '@tanstack/react-router'
 import { Button, Tooltip, Divider } from '@heroui/react'
 import {
   PiCaretLeft,
@@ -177,8 +177,8 @@ export function RightPanel({
           className={`absolute right-0 top-1/2 -translate-y-1/2 z-20 transition-all duration-200 ${
             isHoveringCollapse ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
           }`}
-          onMouseEnter={() => setIsHoveringCollapse(true)}
-          onMouseLeave={() => setIsHoveringCollapse(false)}
+          onMouseEnter={() => { setIsHoveringCollapse(true); }}
+          onMouseLeave={() => { setIsHoveringCollapse(false); }}
         >
           <Tooltip content='展开右侧面板' placement='left'>
             <Button
@@ -203,14 +203,14 @@ export function RightPanel({
             ? ''
             : 'transition-all duration-300 ease-in-out'
         }`}
-        style={{ width: `${isCollapsed ? 0 : panelWidth}px` }}
+        style={{ width: `${String(isCollapsed ? 0 : panelWidth)}px` }}
       >
         {!isCollapsed && (
           <>
             {/* 角色设定区域 - 上半部分 */}
             <div
               className='border-b border-divider flex flex-col relative'
-              style={{ height: `${topHeightRatio * 100}%` }}
+              style={{ height: `${String(topHeightRatio * 100)}%` }}
             >
               <div className='p-4 flex-1 overflow-y-auto'>
                 <div className='flex items-center justify-between mb-3'>
@@ -229,6 +229,7 @@ export function RightPanel({
 
                 <div className='text-xs text-foreground-500 space-y-1'>
                   {roleSettings.descriptions.map((desc, index) => (
+                    // eslint-disable-next-line react-x/no-array-index-key
                     <p key={index}>{desc}</p>
                   ))}
                 </div>
@@ -240,8 +241,8 @@ export function RightPanel({
                   isHoveringHeight ? 'bg-primary/20' : ''
                 }`}
                 onMouseDown={handleHeightMouseDown}
-                onMouseEnter={() => setIsHoveringHeight(true)}
-                onMouseLeave={() => setIsHoveringHeight(false)}
+                onMouseEnter={() => { setIsHoveringHeight(true); }}
+                onMouseLeave={() => { setIsHoveringHeight(false); }}
               >
                 <div
                   className={`w-full h-full ${
@@ -254,7 +255,7 @@ export function RightPanel({
             {/* 会话列表区域 - 下半部分 */}
             <div
               className='flex-1 overflow-y-auto p-4 flex flex-col'
-              style={{ height: `${(1 - topHeightRatio) * 100}%` }}
+              style={{ height: `${String((1 - topHeightRatio) * 100)}%` }}
             >
               <div className='flex items-center justify-between mb-4'>
                 <h3 className='text-lg font-semibold'>
@@ -282,7 +283,7 @@ export function RightPanel({
 
               <div className='flex-1 overflow-y-auto space-y-4'>
                 {conversations.map((group, groupIndex) => (
-                  <div key={groupIndex}>
+                  <div key={group.title}>
                     <h4 className='text-sm font-medium text-foreground-600 mb-2'>
                       {group.title}
                     </h4>
@@ -343,8 +344,8 @@ export function RightPanel({
                 isHoveringCollapse ? 'bg-primary/20' : ''
               }`}
               onMouseDown={handleWidthMouseDown}
-              onMouseEnter={() => setIsHoveringCollapse(true)}
-              onMouseLeave={() => setIsHoveringCollapse(false)}
+              onMouseEnter={() => { setIsHoveringCollapse(true); }}
+              onMouseLeave={() => { setIsHoveringCollapse(false); }}
             >
               <div
                 className={`w-full h-full ${
@@ -362,9 +363,9 @@ export function RightPanel({
           className={`absolute top-1/2 -translate-y-1/2 z-10 transition-all duration-200 ${
             isHoveringCollapse ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
           }`}
-          style={{ right: `${panelWidth - 16}px` }}
-          onMouseEnter={() => setIsHoveringCollapse(true)}
-          onMouseLeave={() => setIsHoveringCollapse(false)}
+          style={{ right: `${String(panelWidth - 16)}px` }}
+          onMouseEnter={() => { setIsHoveringCollapse(true); }}
+          onMouseLeave={() => { setIsHoveringCollapse(false); }}
         >
           <Tooltip content='折叠右侧面板' placement='left'>
             <Button

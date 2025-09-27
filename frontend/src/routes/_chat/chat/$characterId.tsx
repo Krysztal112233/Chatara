@@ -1,14 +1,19 @@
-import { createFileRoute, Outlet, notFound, useNavigate } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  Outlet,
+  notFound,
+  useNavigate,
+} from '@tanstack/react-router'
 import { useState } from 'react'
 import { ChatHeader } from '@/components/chat/ChatHeader'
 import { MobileSessionHistory } from '@/components/chat/MobileSessionHistory'
 import { characters, getSessionsForCharacter } from '@/store/chatStore'
 
-export const Route = createFileRoute('/chat/$characterId')({
+export const Route = createFileRoute('/_chat/chat/$characterId')({
   component: CharacterLayout,
   beforeLoad: ({ params }) => {
     // 验证角色 ID 是否存在
-    const validCharacterIds = characters.map(char => char.id)
+    const validCharacterIds = characters.map((char) => char.id)
     if (!validCharacterIds.includes(params.characterId)) {
       throw notFound()
     }
@@ -17,10 +22,12 @@ export const Route = createFileRoute('/chat/$characterId')({
 
 function CharacterLayout() {
   const { characterId } = Route.useParams()
-  const navigate = useNavigate()
-  const character = characters.find(char => char.id === characterId)
+  const navigate = useNavigate({ from: '/chat/$characterId' })
+  const character = characters.find((char) => char.id === characterId)
   const [showMobileHistory, setShowMobileHistory] = useState(false)
-  const characterSessions = character ? getSessionsForCharacter(character.id) : []
+  const characterSessions = character
+    ? getSessionsForCharacter(character.id)
+    : []
 
   if (!character) {
     return <div>角色未找到</div>
@@ -31,43 +38,56 @@ function CharacterLayout() {
   }
 
   const handleNewSession = () => {
-    navigate({ to: `/chat/${characterId}/newChat` })
+    navigate({ to: '/chat/$characterId', params: { characterId } }).catch(
+      console.error
+    )
   }
 
   const handleConversationClick = (conversationId: string) => {
-    navigate({ to: `/chat/${characterId}/${conversationId}` })
+    navigate({
+      to: '/chat/$characterId/$sessionId',
+      params: { characterId, sessionId: conversationId },
+    }).catch(console.error)
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full">
+    <div className='flex-1 flex flex-col h-full'>
       <ChatHeader
         title={character.name}
         description={character.description}
         avatar={character.avatar}
         onHistoryClick={handleHistoryClick}
-        onBackClick={() => navigate({ to: '/chat' })}
+        onBackClick={() => {
+          navigate({ to: '/chat' }).catch(console.error)
+        }}
         showBackButton={true}
       />
       <Outlet />
-      
+
       {/* 移动端会话历史模态框 */}
       {showMobileHistory && (
-        <div className="fixed inset-0 bg-black/50 z-50 md:hidden">
-          <div 
-            className="absolute inset-y-0 right-0 w-full max-w-sm bg-content1 z-10"
-            onClick={(e) => e.stopPropagation()}
+        <div className='fixed inset-0 bg-black/50 z-50 md:hidden'>
+          <div
+            className='absolute inset-y-0 right-0 w-full max-w-sm bg-content1 z-10'
+            onClick={(e) => {
+              e.stopPropagation()
+            }}
           >
             <MobileSessionHistory
               selectedCharacter={character}
               characterSessions={characterSessions}
-              onClose={() => setShowMobileHistory(false)}
+              onClose={() => {
+                setShowMobileHistory(false)
+              }}
               onNewSession={handleNewSession}
               onConversationClick={handleConversationClick}
             />
           </div>
-          <div 
-            className="absolute inset-0"
-            onClick={() => setShowMobileHistory(false)}
+          <div
+            className='absolute inset-0'
+            onClick={() => {
+              setShowMobileHistory(false)
+            }}
           />
         </div>
       )}

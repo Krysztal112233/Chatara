@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Head } from '@unhead/react'
 
-export const Route = createFileRoute('/discover')({
+export const Route = createFileRoute('/_chat/discover')({
   component: Discover,
 })
 

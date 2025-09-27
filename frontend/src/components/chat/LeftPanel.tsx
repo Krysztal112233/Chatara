@@ -81,7 +81,7 @@ export function LeftPanel({
         className={`bg-content1 flex flex-col relative group overflow-hidden ${
           isCollapsed ? '' : 'border-r border-divider'
         } ${isResizing ? '' : 'transition-all duration-300 ease-in-out'}`}
-        style={{ width: `${isCollapsed ? 0 : sidebarWidth}px` }}
+        style={{ width: `${String(isCollapsed ? 0 : sidebarWidth)}px` }}
       >
         {children(isCollapsed)}
 
@@ -92,8 +92,8 @@ export function LeftPanel({
               isHoveringCollapse ? 'bg-primary/20' : ''
             }`}
             onMouseDown={handleMouseDown}
-            onMouseEnter={() => setIsHoveringCollapse(true)}
-            onMouseLeave={() => setIsHoveringCollapse(false)}
+            onMouseEnter={() => { setIsHoveringCollapse(true); }}
+            onMouseLeave={() => { setIsHoveringCollapse(false); }}
           >
             <div className={`w-full h-full ${isHoveringCollapse ? 'bg-primary/40' : ''}`} />
           </div>
@@ -106,9 +106,9 @@ export function LeftPanel({
           className={`absolute top-1/2 -translate-y-1/2 z-10 transition-all duration-200 ${
             isHoveringCollapse ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
           }`}
-          style={{ left: `${sidebarWidth - 16}px` }}
-          onMouseEnter={() => setIsHoveringCollapse(true)}
-          onMouseLeave={() => setIsHoveringCollapse(false)}
+          style={{ left: `${String(sidebarWidth - 16)}px` }}
+          onMouseEnter={() => { setIsHoveringCollapse(true); }}
+          onMouseLeave={() => { setIsHoveringCollapse(false); }}
         >
           <Tooltip content="折叠侧边栏" placement="right">
             <Button
@@ -129,8 +129,8 @@ export function LeftPanel({
           className={`absolute left-0 top-1/2 -translate-y-1/2 z-20 transition-all duration-200 ${
             isHoveringCollapse ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
           }`}
-          onMouseEnter={() => setIsHoveringCollapse(true)}
-          onMouseLeave={() => setIsHoveringCollapse(false)}
+          onMouseEnter={() => { setIsHoveringCollapse(true); }}
+          onMouseLeave={() => { setIsHoveringCollapse(false); }}
         >
           <Tooltip content="展开侧边栏" placement="right">
             <Button

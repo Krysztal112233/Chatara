@@ -172,7 +172,7 @@ export const getSessionsForCharacter = (characterId: string): SessionGroup[] => 
     ],
   }
   
-  return allSessions[characterId] || []
+  return allSessions[characterId]
 }
 
 // 获取当前选中角色的会话数据

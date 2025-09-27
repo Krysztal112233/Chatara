@@ -3,7 +3,7 @@ import { PiX, PiPlus, PiStar, PiStarFill } from 'react-icons/pi'
 import { getRouteApi } from '@tanstack/react-router'
 import type { Character, SessionGroup } from '@/store/chatStore'
 
-const sessionRoute = getRouteApi('/chat/$characterId/$sessionId')
+const sessionRoute = getRouteApi('/_chat/chat/$characterId/$sessionId')
 
 interface MobileSessionHistoryProps {
   selectedCharacter: Character | null
@@ -21,7 +21,7 @@ export function MobileSessionHistory({
   onConversationClick 
 }: MobileSessionHistoryProps) {
   const sessionParams = sessionRoute.useParams()
-  const activeSessionId = sessionParams?.sessionId ?? null
+  const activeSessionId = sessionParams.sessionId
 
   const handleNewSession = () => {
     onNewSession()
@@ -85,6 +85,7 @@ export function MobileSessionHistory({
         <ScrollShadow className="flex-1 px-4">
           <div className="space-y-4 pb-4">
             {characterSessions.map((group, groupIndex) => (
+              // FIXIT: replace with group id
               <div key={groupIndex}>
                 <h4 className="text-xs font-medium text-foreground-600 mb-2 px-1">
                   {group.title}
@@ -98,7 +99,7 @@ export function MobileSessionHistory({
                           ? 'bg-primary/10 border border-primary/20'
                           : 'hover:bg-content2'
                       }`}
-                      onClick={() => handleConversationClick(item.id)}
+                      onClick={() => { handleConversationClick(item.id); }}
                     >
                       {item.starred ? (
                         <PiStarFill className="text-sm text-primary fill-current mt-0.5 flex-shrink-0" />

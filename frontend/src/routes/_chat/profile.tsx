@@ -4,7 +4,7 @@ import { Avatar, Switch, Divider } from '@heroui/react'
 import { useTheme } from '@heroui/use-theme'
 import { PiSignOut, PiMoon } from 'react-icons/pi'
 
-export const Route = createFileRoute('/profile')({
+export const Route = createFileRoute('/_chat/profile')({
   component: Profile,
 })
 
