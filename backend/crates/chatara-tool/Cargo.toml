@@ -7,3 +7,8 @@ license.workspace = true
 version.workspace = true
 
 [dependencies]
+openai-api-rs.workspace = true
+reqwest.workspace = true
+tokio.workspace = true
+
+chatara-storage.workspace = true
