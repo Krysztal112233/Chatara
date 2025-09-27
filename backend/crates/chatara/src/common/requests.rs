@@ -41,6 +41,7 @@ impl Display for Sqid {
     }
 }
 
+#[allow(unused)]
 pub trait ToSqid {
     fn to_sqid(self) -> Sqid;
     fn to_sqid_with(self, codec: &sqids::Sqids) -> Sqid;

@@ -3,9 +3,9 @@ use std::{
     sync::{Arc, OnceLock},
 };
 
-use jsonwebtoken::{Algorithm, DecodingKey, TokenData, Validation, decode, jwk::JwkSet};
+use jsonwebtoken::{decode, jwk::JwkSet, Algorithm, DecodingKey, TokenData, Validation};
 use rocket::tokio::sync::RwLock;
-use serde::{Deserialize, Serialize, de::DeserializeOwned};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 use crate::error::Error;
 
@@ -18,6 +18,8 @@ pub struct JwtValidator {
     pub jwks: Arc<RwLock<Vec<DecodingKey>>>,
 }
 
+static ALG: OnceLock<Validation> = OnceLock::new();
+
 impl JwtValidator {
     pub async fn new(url: &str) -> Result<Self, Error> {
         let jwks = reqwest::get(url).await?.json::<JwkSet>().await?;
@@ -29,6 +31,11 @@ impl JwtValidator {
                 .collect(),
         ));
 
+        let alg = ALG.get_or_init(|| {
+            let t = Validation::new(Algorithm::RS256);
+            t
+        });
+
         Ok(Self { jwks })
     }
 
@@ -36,8 +43,7 @@ impl JwtValidator {
     where
         C: DeserializeOwned + Clone,
     {
-        static ALG: OnceLock<Validation> = OnceLock::new();
-        let alg = ALG.get_or_init(|| Validation::new(Algorithm::RS256));
+        let alg = ALG.get().unwrap();
 
         let binding = self
             .jwks

@@ -1,12 +1,13 @@
 use std::time::Duration;
 
-use jsonwebtoken::{DecodingKey, jwk::JwkSet};
+use jsonwebtoken::{jwk::JwkSet, DecodingKey};
 use log::{error, info};
 use rocket::{
-    Orbit, Request, Response, Rocket, async_trait,
+    async_trait,
     fairing::{Fairing, Info, Kind},
     http::Header,
     tokio::{self, time},
+    Orbit, Request, Response, Rocket,
 };
 
 use crate::{common::jwt::JwtValidator, config::ChataraConfig};
@@ -50,7 +51,7 @@ impl Fairing for JwtValidatorRefresher {
     }
 
     async fn on_liftoff(&self, rocket: &Rocket<Orbit>) {
-        let url = rocket.state::<ChataraConfig>().unwrap().jwks.clone();
+        let url = rocket.state::<ChataraConfig>().unwrap().auth.jwks.clone();
         let jwt_validator = rocket.state::<JwtValidator>().unwrap().jwks.clone();
 
         tokio::spawn(async move {

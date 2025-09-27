@@ -38,10 +38,10 @@ async fn rocket() -> _ {
         .try_init();
 
     let figment = ChataraConfig::get_figment();
-    let chatara_config: ChataraConfig = figment.extract().unwrap();
+    let chatara_config: ChataraConfig = dbg!(figment.extract().unwrap());
 
     let database = setup_database(&chatara_config.database).await.unwrap();
-    let jwt_validator = setup_jwks(&chatara_config.jwks).await.unwrap();
+    let jwt_validator = setup_jwks(&chatara_config.auth.jwks).await.unwrap();
     let sqid = setup_sqids(&chatara_config).await.unwrap();
 
     Rocket::custom(figment)

@@ -11,8 +11,8 @@ use serde::{Deserialize, Serialize};
 pub struct ChataraConfig {
     pub cors: CorsConfig,
     pub database: DatabaseConfig,
-    pub jwks: String,
     pub sqid_dict: String,
+    pub auth: AuthConfig,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Educe)]
@@ -20,6 +20,14 @@ pub struct ChataraConfig {
 pub struct CorsConfig {
     #[educe(Default = "*")]
     pub origin: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct AuthConfig {
+    pub jwks: String,
+    pub iss: String,
+    pub aud: Vec<String>,
+    pub client_id: String,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, Educe)]
