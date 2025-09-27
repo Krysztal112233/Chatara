@@ -30,6 +30,8 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
       clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
       authorizationParams={{
         redirect_uri: window.location.origin + '/auth/login',
+        audience: import.meta.env.VITE_AUTH0_BACKEND_AUDIENCE,
+        scope: 'openid profile email',
       }}
       cacheLocation='localstorage'
       useRefreshTokens={true}
