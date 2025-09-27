@@ -17,6 +17,9 @@ pub enum Error {
 
     #[error("{0}")]
     Jwt(#[from] jsonwebtoken::errors::Error),
+
+    #[error("{0}")]
+    Storage(#[from] chatara_storage::error::Error),
 }
 
 impl From<Error> for CommonResponse<()> {

@@ -1,5 +1,3 @@
-use std::str;
-
 use educe::Educe;
 use rocket::figment::{
     providers::{Env, Format, Serialized, Toml},
@@ -13,6 +11,7 @@ pub struct ChataraConfig {
     pub database: DatabaseConfig,
     pub sqid_dict: String,
     pub auth: AuthConfig,
+    pub s3: S3Config,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Educe)]
@@ -28,6 +27,14 @@ pub struct AuthConfig {
     pub iss: String,
     pub aud: Vec<String>,
     pub client_id: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct S3Config {
+    pub name: String,
+    pub regeion: String,
+    pub access_key: String,
+    pub secret_key: String,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, Educe)]

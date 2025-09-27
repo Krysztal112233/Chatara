@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use chatara_storage::ChataraStorage;
 use dotenvy::dotenv;
 use log::LevelFilter;
 use migration::MigratorTrait;
@@ -12,7 +13,7 @@ use crate::{
         fairings::{Cors, JwtValidatorRefresher},
         jwt::JwtValidator,
     },
-    config::{AuthConfig, ChataraConfig, DatabaseConfig},
+    config::{AuthConfig, ChataraConfig, DatabaseConfig, S3Config},
     endpoints::{
         agent::AgentEndpoint, character::CharacterProfileEndpoint, history::HistoryEndpoint,
         root::RootEndpoint,
@@ -46,6 +47,7 @@ async fn rocket() -> _ {
         .await
         .unwrap();
     let sqid = setup_sqids(&chatara_config).await.unwrap();
+    let storage = setup_filestorage(&chatara_config.s3).await.unwrap();
 
     Rocket::custom(figment)
         .register("/", catchers![common::catcher::default])
@@ -53,6 +55,7 @@ async fn rocket() -> _ {
         .manage(database)
         .manage(jwt_validator)
         .manage(sqid)
+        .manage(storage)
         .attach(Cors)
         .attach(JwtValidatorRefresher)
         .attach(AgentEndpoint::stage())
@@ -85,4 +88,13 @@ async fn setup_sqids(config: &ChataraConfig) -> Result<sqids::Sqids, sqids::Erro
     sqids::SqidsBuilder::new()
         .alphabet(config.sqid_dict.chars().collect())
         .build()
+}
+
+async fn setup_filestorage(config: &S3Config) -> Result<ChataraStorage, Error> {
+    Ok(ChataraStorage::new(
+        &config.name,
+        &config.regeion,
+        &config.access_key,
+        &config.secret_key,
+    )?)
 }

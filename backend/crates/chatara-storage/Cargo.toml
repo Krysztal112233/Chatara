@@ -1,0 +1,12 @@
+[package]
+name = "chatara-storage"
+
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+
+[dependencies]
+rust-s3.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
