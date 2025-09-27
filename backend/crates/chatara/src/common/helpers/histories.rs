@@ -68,6 +68,7 @@ pub trait HistoriesHelper {
             chat_role: Set(role),
             belong_history_index: Set(of_history_index),
             content: Set(content.into()),
+            with_resource: Set(None),
         }
         .insert(db)
         .await?;

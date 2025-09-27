@@ -15,8 +15,8 @@ use crate::{
     },
     config::{AuthConfig, ChataraConfig, DatabaseConfig, S3Config},
     endpoints::{
-        tool::AgentEndpoint, character::CharacterProfileEndpoint, history::HistoryEndpoint,
-        root::RootEndpoint,
+        character::CharacterProfileEndpoint, history::HistoryEndpoint, root::RootEndpoint,
+        tool::AgentEndpoint,
     },
     error::Error,
 };

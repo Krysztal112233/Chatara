@@ -18,3 +18,5 @@ async fn create_tts() {}
 
 #[post("/character")]
 async fn create_character() {}
+
+mod response {}

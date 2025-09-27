@@ -13,10 +13,19 @@ pub struct Model {
     pub chat_role: ChatRole,
     pub belong_history_index: Uuid,
     pub content: String,
+    pub with_resource: Option<Uuid>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::attached_resources::Entity",
+        from = "Column::WithResource",
+        to = "super::attached_resources::Column::Id",
+        on_update = "Cascade",
+        on_delete = "SetNull"
+    )]
+    AttachedResources,
     #[sea_orm(
         belongs_to = "super::history_indexes::Entity",
         from = "Column::BelongHistoryIndex",
@@ -25,6 +34,12 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     HistoryIndexes,
+}
+
+impl Related<super::attached_resources::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::AttachedResources.def()
+    }
 }
 
 impl Related<super::history_indexes::Entity> for Entity {

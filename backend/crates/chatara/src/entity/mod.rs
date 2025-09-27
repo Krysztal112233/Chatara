@@ -2,6 +2,7 @@
 
 pub mod prelude;
 
+pub mod attached_resources;
 pub mod character_profiles;
 pub mod histories;
 pub mod history_indexes;

@@ -1,8 +1,8 @@
 #[allow(unused)]
-pub mod tool;
-#[allow(unused)]
 pub mod character;
 #[allow(unused)]
 pub mod history;
 #[allow(unused)]
 pub mod root;
+#[allow(unused)]
+pub mod tool;
