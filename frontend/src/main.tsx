@@ -22,9 +22,29 @@ declare module '@react-types/shared' {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <RouterProvider router={router} />
-  </StrictMode>
-)
+let enableMockingIfNeeded: () => Promise<unknown>
+
+if (import.meta.env.MODE === 'mock') {
+  enableMockingIfNeeded = async () => {
+    if (import.meta.env.MODE !== 'mock') {
+      return
+    }
+
+    const { worker } = await import('./mocks/browser')
+
+    // `worker.start()` returns a Promise that resolves
+    // once the Service Worker is up and ready to intercept requests.
+    return worker.start()
+  }
+} else {
+  enableMockingIfNeeded = () => Promise.resolve()
+}
+
+enableMockingIfNeeded().then(() => {
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <RouterProvider router={router} />
+    </StrictMode>
+  )
+}).catch(console.error)
