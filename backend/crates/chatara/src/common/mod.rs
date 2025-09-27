@@ -1,8 +1,8 @@
 use rocket::{
+    Response,
     http::{ContentType, Status},
     response::Responder,
     serde::{Deserialize, Serialize},
-    Response,
 };
 
 pub mod catcher;

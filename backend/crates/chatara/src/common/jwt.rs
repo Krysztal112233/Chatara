@@ -4,12 +4,11 @@ use std::{
 };
 
 use jsonwebtoken::{
-    decode, decode_header,
+    Algorithm, DecodingKey, TokenData, Validation, decode, decode_header,
     jwk::{AlgorithmParameters, JwkSet},
-    Algorithm, DecodingKey, TokenData, Validation,
 };
 use rocket::tokio::sync::RwLock;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
 use crate::{config::AuthConfig, error::Error};
 

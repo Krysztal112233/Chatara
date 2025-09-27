@@ -5,7 +5,7 @@ use dotenvy::dotenv;
 use log::LevelFilter;
 use migration::MigratorTrait;
 use mimalloc::MiMalloc;
-use rocket::{catchers, Rocket};
+use rocket::{Rocket, catchers};
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 
 use crate::{

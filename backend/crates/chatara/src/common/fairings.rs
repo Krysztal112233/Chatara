@@ -4,11 +4,10 @@ use chrono::Local;
 use jsonwebtoken::jwk::JwkSet;
 use log::{error, info};
 use rocket::{
-    async_trait,
+    Orbit, Request, Response, Rocket, async_trait,
     fairing::{Fairing, Info, Kind},
     http::Header,
     tokio::{self, time},
-    Orbit, Request, Response, Rocket,
 };
 
 use crate::{common::jwt::JwtValidator, config::ChataraConfig};

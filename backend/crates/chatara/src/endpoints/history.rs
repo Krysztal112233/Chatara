@@ -1,6 +1,6 @@
 use migration::index;
 use rocket::{
-    data, delete, fairing::AdHoc, get, http::Status, post, routes, serde::json::Json, State,
+    State, data, delete, fairing::AdHoc, get, http::Status, post, routes, serde::json::Json,
 };
 use sea_orm::DatabaseConnection;
 use sqids::Sqids;
@@ -8,10 +8,10 @@ use uuid::Uuid;
 
 use crate::{
     common::{
+        CommonResponse, PagedData,
         guards::auth::AuthGuard,
         helpers::{histories::HistoriesHelper, history_indexes::HistoryIndexesHelper},
         requests::Sqid,
-        CommonResponse, PagedData,
     },
     endpoints::history::response::{CreateHistoryRequest, HistoryIndexVO, HistoryVO},
     entity::prelude::*,

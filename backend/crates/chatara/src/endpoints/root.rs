@@ -1,9 +1,9 @@
 use reqwest::StatusCode;
 use rocket::{fairing::AdHoc, get, http::Status, options, routes};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 use crate::{
-    common::{guards::auth::AuthGuard, CommonResponse},
+    common::{CommonResponse, guards::auth::AuthGuard},
     error::Error,
 };
 

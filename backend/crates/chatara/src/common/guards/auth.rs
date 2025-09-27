@@ -1,9 +1,8 @@
 use log::error;
 use rocket::{
-    async_trait,
+    Request, async_trait,
     http::Status,
     request::{FromRequest, Outcome},
-    Request,
 };
 use sea_orm::DatabaseConnection;
 
