@@ -31,9 +31,10 @@ pub struct AuthConfig {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct S3Config {
+    pub access_key: String,
+    pub endpoint: String,
     pub name: String,
     pub regeion: String,
-    pub access_key: String,
     pub secret_key: String,
 }
 

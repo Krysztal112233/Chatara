@@ -1,11 +1,9 @@
 use std::ops::Deref;
-use std::str::FromStr;
 
 use s3::creds::Credentials;
 use s3::Bucket;
 use s3::Region;
 
-use crate::error::Error;
 use crate::error::Result;
 
 pub mod error;
@@ -16,15 +14,25 @@ pub struct ChataraStorage {
 }
 
 impl ChataraStorage {
-    pub fn new(name: &str, regeion: &str, access_key: &str, secret_key: &str) -> Result<Self> {
-        let cred = Credentials::default().map_err(|e| Error::Unknown(e.to_string()))?;
+    pub fn new(
+        name: &str,
+        regeion: &str,
+        access_key: &str,
+        secret_key: &str,
+        endpoint: &str,
+    ) -> Result<Self> {
         let bucket = s3::Bucket::new(
             name,
-            Region::from_str(regeion).map_err(|e| Error::Unknown(e.to_string()))?,
+            Region::Custom {
+                region: regeion.to_owned(),
+                endpoint: endpoint.to_owned(),
+            },
             Credentials {
                 access_key: Some(access_key.to_string()),
                 secret_key: Some(secret_key.to_string()),
-                ..cred
+                security_token: None,
+                session_token: None,
+                expiration: None,
             },
         )?;
         Ok(Self { bucket })

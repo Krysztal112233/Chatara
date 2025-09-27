@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use chrono::Local;
-use jsonwebtoken::{jwk::JwkSet, DecodingKey};
+use jsonwebtoken::jwk::JwkSet;
 use log::{error, info};
 use rocket::{
     async_trait,
@@ -56,7 +56,7 @@ impl Fairing for JwtValidatorRefresher {
         let jwt_validator = rocket.state::<JwtValidator>().unwrap().jwks.clone();
 
         tokio::spawn(async move {
-            let mut ticker = time::interval(Duration::from_secs(300));
+            let mut ticker = time::interval(Duration::from_secs(60 * 60 * 3));
 
             loop {
                 ticker.tick().await;

@@ -8,8 +8,7 @@ use jsonwebtoken::{
     jwk::{AlgorithmParameters, JwkSet},
     Algorithm, DecodingKey, TokenData, Validation,
 };
-use log::error;
-use rocket::{serde::json, tokio::sync::RwLock};
+use rocket::tokio::sync::RwLock;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 use crate::{config::AuthConfig, error::Error};

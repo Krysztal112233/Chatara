@@ -40,7 +40,7 @@ async fn rocket() -> _ {
         .try_init();
 
     let figment = ChataraConfig::get_figment();
-    let chatara_config: ChataraConfig = dbg!(figment.extract().unwrap());
+    let chatara_config: ChataraConfig = figment.extract().unwrap();
 
     let database = setup_database(&chatara_config.database).await.unwrap();
     let jwt_validator = setup_jwks(&chatara_config.auth.jwks, &chatara_config.auth)
@@ -96,5 +96,6 @@ async fn setup_filestorage(config: &S3Config) -> Result<ChataraStorage, Error> {
         &config.regeion,
         &config.access_key,
         &config.secret_key,
+        &config.endpoint,
     )?)
 }
