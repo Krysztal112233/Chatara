@@ -6,7 +6,6 @@ export interface Character {
   name: string
   description: string
   avatar: string
-  emoji: string
 }
 
 // 角色数据
@@ -16,28 +15,24 @@ export const characters: Character[] = [
     name: '哈利波特',
     description: '霍格沃茨魔法学校学生，拥有格兰芬多的勇气',
     avatar: 'https://i.pravatar.cc/150?u=harry-potter',
-    emoji: '🧙‍♂️',
   },
   {
     id: 'nR8kPm',
     name: '苏格拉底',
     description: '古希腊哲学家，以苏格拉底式问答法闻名',
     avatar: 'https://i.pravatar.cc/150?u=socrates',
-    emoji: '🏛️',
   },
   {
     id: 'vL4qBz',
     name: '爱因斯坦',
     description: '理论物理学家，相对论的创立者',
     avatar: 'https://i.pravatar.cc/150?u=einstein',
-    emoji: '🧬',
   },
   {
     id: 'sJ9tXw',
     name: '莎士比亚',
     description: '英国文学史上最杰出的戏剧家和诗人',
     avatar: 'https://i.pravatar.cc/150?u=shakespeare',
-    emoji: '🎭',
   },
 ]
 

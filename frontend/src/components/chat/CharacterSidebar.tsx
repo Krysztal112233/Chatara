@@ -78,16 +78,11 @@ export function CharacterSidebar({
               >
                 <CardBody className='p-3'>
                   <div className='flex items-start space-x-3'>
-                    <div className='relative flex-shrink-0'>
-                      <Avatar
-                        size='sm'
-                        src={character.avatar}
-                        className='flex-shrink-0'
-                      />
-                      <div className='absolute -top-1 -right-1 text-lg'>
-                        {character.emoji}
-                      </div>
-                    </div>
+                    <Avatar
+                      size='sm'
+                      src={character.avatar}
+                      className='flex-shrink-0'
+                    />
                     <div className='flex-1 min-w-0'>
                       <div className='flex items-center justify-between'>
                         <h3
