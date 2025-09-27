@@ -12,6 +12,7 @@ pub struct ChataraConfig {
     pub sqid_dict: String,
     pub auth: AuthConfig,
     pub s3: S3Config,
+    pub tool: ToolConfig,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Educe)]
@@ -38,6 +39,9 @@ pub struct S3Config {
     pub secret_key: String,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct ToolConfig {}
+
 #[derive(Debug, Clone, Deserialize, Serialize, Educe)]
 #[educe(Default)]
 pub struct DatabaseConfig {
@@ -56,12 +60,6 @@ pub struct DatabaseConfig {
     #[educe(Default = true)]
     pub run_migration: bool,
 }
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Text2SpeechConfig {}
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Speech2TextConfig {}
 
 impl ChataraConfig {
     pub fn get_figment() -> Figment {
