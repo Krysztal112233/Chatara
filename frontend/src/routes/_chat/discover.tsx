@@ -48,8 +48,10 @@ function Discover() {
           </div>
           
           {/* 添加更多角色提示 */}
-          <div className="text-center mt-12">
+          <div className="text-center mt-12 space-y-2">
             <p className="text-default-400 text-sm">更多角色正在路上...</p>
+            <p className="text-default-400 text-sm">未来将支持上传文档智能生成专属角色</p>
+            <p className="text-default-400 text-sm">让每个故事都拥有独特的灵魂</p>
           </div>
         </div>
       </div>
