@@ -26,4 +26,5 @@ thiserror.workspace = true
 url.workspace = true
 uuid.workspace = true
 
+chatara-tool.workspace = true
 migration.workspace = true

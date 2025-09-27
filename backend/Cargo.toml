@@ -5,7 +5,7 @@ license = "Apache-2.0"
 version = "0.0.1"
 
 [workspace]
-members = ["./crates/chatara/", "./crates/migration/"]
+members = ["./crates/chatara-tool/", "./crates/chatara/", "./crates/migration/"]
 resolver = "3"
 
 [workspace.dependencies]
@@ -27,10 +27,11 @@ tokio = "1"
 url = { version = "*", features = ["serde"] }
 uuid = { version = "1.18", features = ["v7"] }
 
+chatara-tool = { path = "./crates/chatara-tool/" }
 migration = { path = "./crates/migration/" }
 
 [workspace.dependencies.figment]
-features = ["toml", "env", "json"]
+features = ["toml", "env"]
 version = "*"
 
 [workspace.dependencies.sea-orm]

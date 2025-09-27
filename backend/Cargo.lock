@@ -373,6 +373,7 @@ checksum = "613afe47fcd5fac7ccf1db93babcb082c5994d996f20b8b159f2ad1658eb5724"
 name = "chatara"
 version = "0.0.1"
 dependencies = [
+ "chatara-tool",
  "chrono",
  "dotenvy",
  "educe",
@@ -393,6 +394,10 @@ dependencies = [
  "url",
  "uuid",
 ]
+
+[[package]]
+name = "chatara-tool"
+version = "0.0.1"
 
 [[package]]
 name = "chrono"

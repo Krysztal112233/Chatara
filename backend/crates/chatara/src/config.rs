@@ -49,6 +49,12 @@ pub struct DatabaseConfig {
     pub run_migration: bool,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Text2SpeechConfig {}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Speech2TextConfig {}
+
 impl ChataraConfig {
     pub fn get_figment() -> Figment {
         Figment::default()
