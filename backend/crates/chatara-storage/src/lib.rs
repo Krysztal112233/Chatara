@@ -1,8 +1,8 @@
 use std::ops::Deref;
 
+use s3::creds::Credentials;
 use s3::Bucket;
 use s3::Region;
-use s3::creds::Credentials;
 
 use crate::error::Result;
 
@@ -36,6 +36,13 @@ impl ChataraStorage {
             },
         )?;
         Ok(Self { bucket })
+    }
+
+    pub async fn upload_presign<P>(&self, path: P) -> Result<String>
+    where
+        P: AsRef<str>,
+    {
+        Ok(self.presign_put(path, 60 * 60, None, None).await?)
     }
 }
 
