@@ -62,13 +62,13 @@ const mockHistoryMessages = {
   'mK8dLr': [
     {
       id: 'msg1',
-      role: 'user' as const,
+      role: 'User' as const,
       content: '你好，哈利！',
       created_at: '2024-01-20T16:30:00Z',
     },
     {
       id: 'msg2',
-      role: 'character' as const,
+      role: 'Character' as const,
       content: '你好！我是哈利·波特，很高兴认识你！',
       created_at: '2024-01-20T16:31:00Z',
     },
@@ -76,13 +76,13 @@ const mockHistoryMessages = {
   'pQ3nXs': [
     {
       id: 'msg3',
-      role: 'user' as const,
+      role: 'User' as const,
       content: '魁地奇是什么？',
       created_at: '2024-01-19T12:15:00Z',
     },
     {
       id: 'msg4',
-      role: 'character' as const,
+      role: 'Character' as const,
       content: '魁地奇是我们魔法世界最受欢迎的运动...',
       created_at: '2024-01-19T12:16:00Z',
     },
@@ -90,13 +90,13 @@ const mockHistoryMessages = {
   'xF2vGj': [
     {
       id: 'msg5',
-      role: 'user' as const,
+      role: 'User' as const,
       content: '什么是智慧？',
       created_at: '2024-01-20T15:45:00Z',
     },
     {
       id: 'msg6',
-      role: 'character' as const,
+      role: 'Character' as const,
       content: '我知道我一无所知，这就是智慧的开始...',
       created_at: '2024-01-20T15:46:00Z',
     },
@@ -258,7 +258,7 @@ export const handlers = [
     
     const newMessage = {
       id: `msg_${Date.now().toString()}`,
-      role: 'user' as const,
+      role: 'User' as const,
       content: body.content,
       created_at: new Date().toISOString(),
     }

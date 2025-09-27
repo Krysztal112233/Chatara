@@ -16,7 +16,7 @@ interface HistoryIndex {
 
 interface History {
   id: string
-  role: 'system' | 'user' | 'character'
+  role: 'System' | 'User' | 'Character'
   content: string
   created_at: string
 }
