@@ -13,3 +13,9 @@ pub enum ChatRole {
     #[sea_orm(string_value = "character")]
     Character,
 }
+#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "resource_type")]
+pub enum ResourceType {
+    #[sea_orm(string_value = "audio")]
+    Audio,
+}
