@@ -11,5 +11,8 @@ pub enum Error {
     Serde(#[from] serde_json::error::Error),
 
     #[error("{0}")]
+    Reqwest(#[from] reqwest::Error),
+
+    #[error("{0}")]
     Unknown(String),
 }

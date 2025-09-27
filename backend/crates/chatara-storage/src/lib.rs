@@ -2,9 +2,9 @@ use std::ops::Deref;
 
 use chrono::Local;
 use log::{error, info};
-use s3::creds::Credentials;
 use s3::Bucket;
 use s3::Region;
+use s3::creds::Credentials;
 
 use crate::error::Result;
 

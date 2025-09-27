@@ -40,7 +40,16 @@ pub struct S3Config {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct ToolConfig {}
+pub struct ToolConfig {
+    pub asr: OpenAiApiConfig,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct OpenAiApiConfig {
+    pub model: String,
+    pub url: String,
+    pub token: String,
+}
 
 #[derive(Debug, Clone, Deserialize, Serialize, Educe)]
 #[educe(Default)]

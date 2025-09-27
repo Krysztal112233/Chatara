@@ -11,6 +11,7 @@ pub mod guards;
 pub mod helpers;
 pub mod jwt;
 pub mod requests;
+pub mod tools;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CommonResponse<T> {

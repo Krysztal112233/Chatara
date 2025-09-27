@@ -466,6 +466,7 @@ name = "chatara-tool"
 version = "0.0.1"
 dependencies = [
  "chatara-storage",
+ "chrono",
  "im",
  "log",
  "openai-api-rs",
