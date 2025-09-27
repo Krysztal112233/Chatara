@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use chrono::Local;
 use jsonwebtoken::{jwk::JwkSet, DecodingKey};
 use log::{error, info};
 use rocket::{
@@ -59,7 +60,9 @@ impl Fairing for JwtValidatorRefresher {
 
             loop {
                 ticker.tick().await;
-                info!("refreshing jwks......");
+
+                let start_at = Local::now();
+                info!("refreshing jwks...");
 
                 let Ok(jwks) = reqwest::get(url.to_owned())
                     .await
@@ -76,7 +79,8 @@ impl Fairing for JwtValidatorRefresher {
                 };
 
                 *jwt_validator.write().await = jwks;
-                info!("jwks refreshed!")
+                let time = Local::now().timestamp_millis() - start_at.timestamp_millis();
+                info!("jwks refreshed - {}ms", time)
             }
         });
     }
