@@ -1,37 +1,49 @@
 import {
   createFileRoute,
   Outlet,
-  notFound,
   useNavigate,
 } from '@tanstack/react-router'
 import { useState } from 'react'
+import { Spinner } from '@heroui/react'
 import { ChatHeader } from '@/components/chat/ChatHeader'
 import { MobileSessionHistory } from '@/components/chat/MobileSessionHistory'
-import { characters, getSessionsForCharacter } from '@/store/chatStore'
+import { useCharacter } from '@/lib/api/characters'
+import { getSessionsForCharacter } from '@/store/chatStore'
 
 export const Route = createFileRoute('/_chat/chat/$characterId')({
   component: CharacterLayout,
-  beforeLoad: ({ params }) => {
-    // 验证角色 ID 是否存在
-    const validCharacterIds = characters.map((char) => char.id)
-    if (!validCharacterIds.includes(params.characterId)) {
-      throw notFound()
-    }
-  },
 })
 
 function CharacterLayout() {
   const { characterId } = Route.useParams()
   const navigate = useNavigate({ from: '/chat/$characterId' })
-  const character = characters.find((char) => char.id === characterId)
+  const { character, isLoading, error } = useCharacter(characterId)
   const [showMobileHistory, setShowMobileHistory] = useState(false)
-  const characterSessions = character
-    ? getSessionsForCharacter(character.id)
-    : []
-
-  if (!character) {
-    return <div>角色未找到</div>
+  
+  // 显示加载状态
+  if (isLoading) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <Spinner size="lg" />
+      </div>
+    )
   }
+
+  // 显示错误状态
+  if (error || !character) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-lg font-semibold text-default-900">角色未找到</h2>
+          <p className="text-default-500 mt-1">
+            {error?.message || '请检查角色 ID 是否正确'}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  const characterSessions = getSessionsForCharacter(character.id)
 
   const handleHistoryClick = () => {
     setShowMobileHistory(true)
@@ -54,8 +66,8 @@ function CharacterLayout() {
     <div className='flex-1 flex flex-col h-full'>
       <ChatHeader
         title={character.name}
-        description={character.description}
-        avatar={character.avatar}
+        description={character.settings.description || ''}
+        avatar={character.settings.avatar || `https://i.pravatar.cc/150?u=${character.name}`}
         onHistoryClick={handleHistoryClick}
         onBackClick={() => {
           navigate({ to: '/chat' }).catch(console.error)

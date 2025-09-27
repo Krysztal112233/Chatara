@@ -9,8 +9,9 @@ import { CharacterSidebar } from '@/components/chat/CharacterSidebar'
 import { LeftPanel } from '@/components/chat/LeftPanel'
 import { RightPanel } from '@/components/chat/RightPanel'
 import { Head } from '@unhead/react'
-import { characters, getSessionsForCharacter } from '@/store/chatStore'
+import { getSessionsForCharacter } from '@/store/chatStore'
 import type { RoleSettings } from '@/components/chat/RightPanel'
+import { useCharacters } from '@/lib/api/characters'
 
 export const Route = createFileRoute('/_chat/chat')({
   component: Chat,
@@ -30,6 +31,7 @@ const getRoleSettingsForCharacter = (characterName: string): RoleSettings => ({
 function Chat() {
   const navigate = useNavigate({ from: '/chat' })
   const routerState = useRouterState()
+  const { characters } = useCharacters()
 
   const { characterId: selectedCharacterId } = useParams({ strict: false })
   const selectedCharacter = characters.find(

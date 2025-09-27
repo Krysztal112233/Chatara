@@ -2,10 +2,14 @@ import useSWR from 'swr'
 import { useFetcher } from '../fetcher'
 import type { CommonResponse } from './base'
 
-interface CharacterProfile {
+export interface CharacterProfile {
   id: string
   name: string
-  settings: Record<string, unknown>
+  settings: {
+    description?: string
+    avatar?: string
+    [key: string]: unknown
+  }
   created_at: string
 }
 

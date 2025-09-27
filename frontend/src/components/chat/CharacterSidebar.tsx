@@ -7,9 +7,10 @@ import {
   ScrollShadow,
   Divider,
   Tooltip,
+  Spinner,
 } from '@heroui/react'
 import { PiPlus } from 'react-icons/pi'
-import { characters } from '@/store/chatStore'
+import { useCharacters } from '@/lib/api/characters'
 
 interface CharacterSidebarProps {
   isCollapsed: boolean
@@ -22,6 +23,8 @@ export function CharacterSidebar({
   selectedCharacterId,
   onCharacterSelect,
 }: CharacterSidebarProps) {
+  const { characters, isLoading, error } = useCharacters()
+
   return (
     <>
       {/* 侧边栏内容 - 折叠时隐藏 */}
@@ -62,7 +65,16 @@ export function CharacterSidebar({
         {/* 角色列表 */}
         <ScrollShadow className='flex-1'>
           <div className='p-2 space-y-1'>
-            {characters.map((character) => (
+            {isLoading ? (
+              <div className='flex justify-center p-4'>
+                <Spinner size='sm' />
+              </div>
+            ) : error ? (
+              <div className='text-center p-4 text-default-500 text-sm'>
+                加载角色失败
+              </div>
+            ) : (
+              characters.map((character) => (
               <Card
                 key={character.id}
                 isPressable
@@ -80,7 +92,7 @@ export function CharacterSidebar({
                   <div className='flex items-start space-x-3'>
                     <Avatar
                       size='sm'
-                      src={character.avatar}
+                      src={character.settings.avatar || `https://i.pravatar.cc/150?u=${character.name}`}
                       className='flex-shrink-0'
                     />
                     <div className='flex-1 min-w-0'>
@@ -96,13 +108,13 @@ export function CharacterSidebar({
                         </h3>
                       </div>
                       <p className='text-xs text-default-500 truncate mt-1 leading-relaxed'>
-                        {character.description}
+                        {character.settings.description || ''}
                       </p>
                     </div>
                   </div>
                 </CardBody>
               </Card>
-            ))}
+            )))}
           </div>
         </ScrollShadow>
       </div>
