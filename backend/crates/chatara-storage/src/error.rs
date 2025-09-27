@@ -8,5 +8,8 @@ pub enum Error {
     S3(#[from] s3::error::S3Error),
 
     #[error("{0}")]
+    TokioFs(#[from] tokio::io::Error),
+
+    #[error("{0}")]
     Unknown(String),
 }

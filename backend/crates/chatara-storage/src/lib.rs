@@ -1,8 +1,10 @@
 use std::ops::Deref;
 
+use chrono::Local;
+use log::{error, info};
+use s3::creds::Credentials;
 use s3::Bucket;
 use s3::Region;
-use s3::creds::Credentials;
 
 use crate::error::Result;
 
@@ -42,7 +44,32 @@ impl ChataraStorage {
     where
         P: AsRef<str>,
     {
+        let path = path.as_ref();
+        self.upload(path).await?;
         Ok(self.presign_put(path, 60 * 60, None, None).await?)
+    }
+
+    pub async fn upload<P>(&self, path: P) -> Result<usize>
+    where
+        P: AsRef<str>,
+    {
+        let path = path.as_ref();
+        let started = Local::now();
+
+        info!("uploading file {path} to S3...");
+        let mut file = tokio::fs::File::open(&path)
+            .await
+            .inspect_err(|e| error!("failed to upload file `{path}`: {e}"))?;
+        let response = self.put_object_stream(&mut file, path).await?;
+
+        info!(
+            "uploaded file `{path}` with status {} sized {} bytes - cost {}ms",
+            response.status_code(),
+            response.uploaded_bytes(),
+            Local::now().timestamp_millis() - started.timestamp_millis()
+        );
+
+        Ok(response.uploaded_bytes())
     }
 }
 

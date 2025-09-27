@@ -454,6 +454,8 @@ dependencies = [
 name = "chatara-storage"
 version = "0.0.1"
 dependencies = [
+ "chrono",
+ "log",
  "rust-s3",
  "thiserror 2.0.16",
  "tokio",

@@ -10,6 +10,9 @@ pub enum Error {
     Db(#[from] sea_orm::DbErr),
 
     #[error("{0}")]
+    Io(#[from] std::io::Error),
+
+    #[error("{0}")]
     Reqwest(#[from] reqwest::Error),
 
     #[error("{0}")]
