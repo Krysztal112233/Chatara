@@ -40,6 +40,18 @@ pub trait HistoriesHelper {
             .collect::<HashMap<_, _>>())
     }
 
+    async fn get_all_histories<C>(index: Uuid, db: &C) -> Result<Vec<histories::Model>, Error>
+    where
+        C: ConnectionTrait,
+    {
+        Ok(Histories::find()
+            .filter(histories::Column::BelongHistoryIndex.eq(index))
+            .all(db)
+            .await?
+            .into_iter()
+            .collect())
+    }
+
     async fn create_history<T, C>(
         of_history_index: Uuid,
         role: ChatRole,

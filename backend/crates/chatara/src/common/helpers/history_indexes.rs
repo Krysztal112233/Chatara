@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use chrono::Local;
 use rocket::async_trait;
 use sea_orm::{
@@ -9,20 +7,23 @@ use sea_orm::{
 use uuid::Uuid;
 
 use crate::{
-    common::helpers::user,
     entity::{history_indexes, prelude::*},
     error::Error,
 };
 
 #[async_trait]
 pub trait HistoryIndexesHelper {
-    async fn delete_history<I, C>(ids: I, db: &C) -> Result<(), Error>
+    async fn delete_index_of_user<T, C>(index: Uuid, user: T, db: &C) -> Result<(), Error>
     where
-        I: IntoIterator<Item = Uuid> + Send,
+        T: Into<String> + Send,
         C: ConnectionTrait,
     {
         HistoryIndexes::delete_many()
-            .filter(history_indexes::Column::Id.is_in(ids))
+            .filter(
+                Condition::all()
+                    .add(history_indexes::Column::Id.eq(index))
+                    .add(history_indexes::Column::BelongUser.eq(user.into())),
+            )
             .exec(db)
             .await?;
         Ok(())
