@@ -72,7 +72,9 @@ export function CharacterSidebar({
                     : 'bg-transparent hover:bg-default-100'
                 }`}
                 shadow='none'
-                onPress={() => { onCharacterSelect(character.id); }}
+                onPress={() => {
+                  onCharacterSelect(character.id)
+                }}
               >
                 <CardBody className='p-3'>
                   <div className='flex items-start space-x-3'>

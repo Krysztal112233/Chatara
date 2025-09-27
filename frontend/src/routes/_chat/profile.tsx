@@ -41,7 +41,6 @@ function Profile() {
         <div className='bg-gradient-to-r from-primary-50 to-secondary-50 dark:from-content1 dark:to-content2 p-6'>
           <div className='flex items-center space-x-4'>
             <Avatar
-              size='lg'
               src={
                 isAuthenticated
                   ? user?.picture || 'https://i.pravatar.cc/150?u=user'
@@ -50,7 +49,7 @@ function Profile() {
               icon={
                 !isAuthenticated ? <PiUser className='text-xl' /> : undefined
               }
-              className='w-16 h-16'
+              className='w-16 h-16 flex-shrink-0'
             />
             <div className='flex-1'>
               <h2 className='text-xl font-semibold text-foreground'>

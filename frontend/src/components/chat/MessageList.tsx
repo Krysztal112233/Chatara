@@ -13,8 +13,8 @@ interface MessageListProps {
 
 export function MessageList({ messages }: MessageListProps) {
   return (
-    <ScrollShadow className="flex-1 p-6">
-      <div className="space-y-6 max-w-4xl mx-auto">
+    <ScrollShadow className='flex-1 p-6'>
+      <div className='space-y-6 max-w-4xl mx-auto'>
         {messages.map((message) => (
           <div
             key={message.id}
@@ -23,28 +23,34 @@ export function MessageList({ messages }: MessageListProps) {
             }`}
           >
             <Avatar
-              size="sm"
-              src={message.isUser
-                ? 'https://i.pravatar.cc/150?u=demo'
-                : 'https://i.pravatar.cc/150?u=ai'
+              size='sm'
+              src={
+                message.isUser
+                  ? 'https://i.pravatar.cc/150?u=demo'
+                  : 'https://i.pravatar.cc/150?u=ai'
               }
+              className='flex-shrink-0'
             />
-            <div className={`flex flex-col ${message.isUser ? 'items-end' : 'items-start'}`}>
+            <div
+              className={`flex flex-col ${
+                message.isUser ? 'items-end' : 'items-start'
+              }`}
+            >
               <Card
-                shadow="none"
+                shadow='none'
                 className={`max-w-lg ${
                   message.isUser
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-content2'
                 }`}
               >
-                <CardBody className="p-3">
-                  <p className="text-sm whitespace-pre-wrap">
+                <CardBody className='p-3'>
+                  <p className='text-sm whitespace-pre-wrap'>
                     {message.content}
                   </p>
                 </CardBody>
               </Card>
-              <span className="text-xs text-default-500 mt-1">
+              <span className='text-xs text-default-500 mt-1'>
                 {message.time}
               </span>
             </div>

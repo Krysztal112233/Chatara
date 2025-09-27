@@ -42,9 +42,8 @@ export function UserPopover({ children }: UserPopoverProps) {
             {/* 已登录用户信息区域 */}
             <div className='flex items-center space-x-3 mb-4'>
               <Avatar
-                size='sm'
                 src={user?.picture || 'https://i.pravatar.cc/150?u=user'}
-                className='w-10 h-10'
+                className='w-10 h-10 flex-shrink-0'
               />
               <div className='flex-1'>
                 <h3 className='font-medium text-foreground text-sm'>
@@ -84,9 +83,8 @@ export function UserPopover({ children }: UserPopoverProps) {
             {/* 未登录用户信息区域 */}
             <div className='flex items-center space-x-3 mb-4'>
               <Avatar
-                size='sm'
                 icon={<PiUser className='text-sm' />}
-                className='w-10 h-10'
+                className='w-10 h-10 flex-shrink-0'
               />
               <div className='flex-1'>
                 <h3 className='font-medium text-foreground text-sm'>新朋友</h3>
