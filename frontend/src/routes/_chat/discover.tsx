@@ -9,7 +9,7 @@ function Discover() {
   return (
     <>
       <Head>
-        <title>角色发现</title>
+        <title>发现</title>
       </Head>
       <div className="h-full overflow-y-auto pb-20 md:pb-0">
         <div className="container mx-auto px-4 py-8">

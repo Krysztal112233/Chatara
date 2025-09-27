@@ -1,13 +1,15 @@
 import { createLink, useLocation } from '@tanstack/react-router'
 import { Button, Avatar, Tooltip } from '@heroui/react'
-import { PiChatCircle, PiCompass } from 'react-icons/pi'
+import { PiChatCircle, PiCompass, PiUser } from 'react-icons/pi'
 import { ThemeSwitcher } from '@/components/ui/ThemeSwitcher'
 import { UserPopover } from '@/components/ui/UserPopover'
+import { useAuth0 } from '@auth0/auth0-react'
 
 export const LinkButton = createLink(Button)
 
 export function LeftTabs() {
   const location = useLocation()
+  const { isAuthenticated, user } = useAuth0()
 
   const tabs = [
     { path: '/chat', icon: <PiChatCircle />, label: '聊天' },
@@ -19,11 +21,19 @@ export function LeftTabs() {
       <div className='flex flex-col items-center space-y-3'>
         <UserPopover>
           <Tooltip content="用户设置" placement="right">
-            <Avatar
-              size="md"
-              src="https://i.pravatar.cc/150?u=demo-user"
-              className="w-10 h-10 cursor-pointer transition-all duration-200 hover:ring-2 hover:ring-primary hover:ring-offset-2 hover:ring-offset-background"
-            />
+            {isAuthenticated ? (
+              <Avatar
+                size="md"
+                src={user?.picture || "https://i.pravatar.cc/150?u=demo-user"}
+                className="w-10 h-10 cursor-pointer transition-all duration-200 hover:ring-2 hover:ring-primary hover:ring-offset-2 hover:ring-offset-background"
+              />
+            ) : (
+              <Avatar
+                size="md"
+                icon={<PiUser className="text-lg" />}
+                className="w-10 h-10 cursor-pointer transition-all duration-200 hover:ring-2 hover:ring-primary hover:ring-offset-2 hover:ring-offset-background"
+              />
+            )}
           </Tooltip>
         </UserPopover>
         

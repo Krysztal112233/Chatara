@@ -84,11 +84,7 @@ function Chat() {
   return (
     <>
       <Head>
-        <title>
-          {selectedCharacter
-            ? `${selectedCharacter.name} - 角色对话`
-            : '角色对话'}
-        </title>
+        <title>对话</title>
       </Head>
       <div className='flex h-full relative'>
         {/* 移动端角色选择 - 只在 /chat 根路径显示 */}
