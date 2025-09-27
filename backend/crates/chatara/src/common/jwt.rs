@@ -3,11 +3,16 @@ use std::{
     sync::{Arc, OnceLock},
 };
 
-use jsonwebtoken::{decode, jwk::JwkSet, Algorithm, DecodingKey, TokenData, Validation};
-use rocket::tokio::sync::RwLock;
+use jsonwebtoken::{
+    decode, decode_header,
+    jwk::{AlgorithmParameters, JwkSet},
+    Algorithm, DecodingKey, TokenData, Validation,
+};
+use log::error;
+use rocket::{serde::json, tokio::sync::RwLock};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
-use crate::error::Error;
+use crate::{config::AuthConfig, error::Error};
 
 #[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct Auth0Claim {
@@ -15,25 +20,22 @@ pub struct Auth0Claim {
 }
 
 pub struct JwtValidator {
-    pub jwks: Arc<RwLock<Vec<DecodingKey>>>,
+    pub jwks: Arc<RwLock<JwkSet>>,
 }
 
-static ALG: OnceLock<Validation> = OnceLock::new();
+static VALID: OnceLock<Validation> = OnceLock::new();
 
 impl JwtValidator {
-    pub async fn new(url: &str) -> Result<Self, Error> {
+    pub async fn new(url: &str, config: &AuthConfig) -> Result<Self, Error> {
         let jwks = reqwest::get(url).await?.json::<JwkSet>().await?;
 
-        let jwks = Arc::new(RwLock::new(
-            jwks.keys
-                .into_iter()
-                .flat_map(|it| DecodingKey::from_jwk(&it))
-                .collect(),
-        ));
+        let jwks = Arc::new(RwLock::new(jwks));
 
-        let alg = ALG.get_or_init(|| {
-            let t = Validation::new(Algorithm::RS256);
-            t
+        let _ = VALID.get_or_init(|| {
+            let mut validation = Validation::new(Algorithm::RS256);
+            validation.set_audience(&config.aud);
+            validation.set_issuer(std::slice::from_ref(&config.iss));
+            validation
         });
 
         Ok(Self { jwks })
@@ -43,20 +45,32 @@ impl JwtValidator {
     where
         C: DeserializeOwned + Clone,
     {
-        let alg = ALG.get().unwrap();
+        let header = decode_header(jwt)?;
+        let kid = header
+            .kid
+            .ok_or(Error::Jwt(jsonwebtoken::errors::Error::from(
+                jsonwebtoken::errors::ErrorKind::MissingRequiredClaim("kid".to_owned()),
+            )))?;
 
-        let binding = self
-            .jwks
-            .read()
-            .await
-            .iter()
-            .flat_map(|it| decode::<C>(jwt, it, alg))
-            .collect::<Vec<_>>();
-        let result = binding.first();
+        let jwks = self.jwks.read().await.clone();
 
-        result.cloned().ok_or(Error::Jwt(
-            jsonwebtoken::errors::ErrorKind::InvalidToken.into(),
-        ))
+        let jwk = jwks
+            .find(&kid)
+            .ok_or(Error::Jwt(jsonwebtoken::errors::Error::from(
+                jsonwebtoken::errors::ErrorKind::MissingAlgorithm,
+            )))?;
+
+        let AlgorithmParameters::RSA(ref param) = jwk.algorithm else {
+            return Err(Error::Jwt(
+                jsonwebtoken::errors::ErrorKind::MissingAlgorithm.into(),
+            ));
+        };
+        let decoding = DecodingKey::from_rsa_components(&param.n, &param.e)?;
+
+        let validation = VALID.get().unwrap();
+        let token = decode(jwt, &decoding, validation)?;
+
+        Ok(token)
     }
 }
 

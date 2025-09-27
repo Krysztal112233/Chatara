@@ -12,7 +12,7 @@ use crate::{
         fairings::{Cors, JwtValidatorRefresher},
         jwt::JwtValidator,
     },
-    config::{ChataraConfig, DatabaseConfig},
+    config::{AuthConfig, ChataraConfig, DatabaseConfig},
     endpoints::{
         character::CharacterProfileEndpoint, history::HistoryEndpoint, root::RootEndpoint,
     },
@@ -41,7 +41,9 @@ async fn rocket() -> _ {
     let chatara_config: ChataraConfig = dbg!(figment.extract().unwrap());
 
     let database = setup_database(&chatara_config.database).await.unwrap();
-    let jwt_validator = setup_jwks(&chatara_config.auth.jwks).await.unwrap();
+    let jwt_validator = setup_jwks(&chatara_config.auth.jwks, &chatara_config.auth)
+        .await
+        .unwrap();
     let sqid = setup_sqids(&chatara_config).await.unwrap();
 
     Rocket::custom(figment)
@@ -72,8 +74,8 @@ async fn setup_database(config: &DatabaseConfig) -> Result<DatabaseConnection, E
     Ok(database)
 }
 
-async fn setup_jwks(url: &str) -> Result<JwtValidator, Error> {
-    let jwt_validator = JwtValidator::new(url).await?;
+async fn setup_jwks(url: &str, config: &AuthConfig) -> Result<JwtValidator, Error> {
+    let jwt_validator = JwtValidator::new(url, config).await?;
     Ok(jwt_validator)
 }
 

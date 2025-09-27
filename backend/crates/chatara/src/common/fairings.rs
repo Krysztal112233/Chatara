@@ -75,12 +75,6 @@ impl Fairing for JwtValidatorRefresher {
                     continue;
                 };
 
-                let jwks = jwks
-                    .keys
-                    .into_iter()
-                    .flat_map(|it| DecodingKey::from_jwk(&it))
-                    .collect::<Vec<_>>();
-
                 *jwt_validator.write().await = jwks;
                 info!("jwks refreshed!")
             }
