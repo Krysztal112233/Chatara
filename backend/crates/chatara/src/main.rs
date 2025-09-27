@@ -14,7 +14,8 @@ use crate::{
     },
     config::{AuthConfig, ChataraConfig, DatabaseConfig},
     endpoints::{
-        character::CharacterProfileEndpoint, history::HistoryEndpoint, root::RootEndpoint,
+        agent::AgentEndpoint, character::CharacterProfileEndpoint, history::HistoryEndpoint,
+        root::RootEndpoint,
     },
     error::Error,
 };
@@ -54,9 +55,10 @@ async fn rocket() -> _ {
         .manage(sqid)
         .attach(Cors)
         .attach(JwtValidatorRefresher)
-        .attach(HistoryEndpoint::adhoc())
-        .attach(RootEndpoint::adhoc())
-        .attach(CharacterProfileEndpoint::adhoc())
+        .attach(AgentEndpoint::stage())
+        .attach(CharacterProfileEndpoint::stage())
+        .attach(HistoryEndpoint::stage())
+        .attach(RootEndpoint::stage())
 }
 
 async fn setup_database(config: &DatabaseConfig) -> Result<DatabaseConnection, Error> {

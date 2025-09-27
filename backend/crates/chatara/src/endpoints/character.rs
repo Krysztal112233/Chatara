@@ -12,7 +12,7 @@ use crate::{
 pub struct CharacterProfileEndpoint;
 
 impl CharacterProfileEndpoint {
-    pub fn adhoc() -> AdHoc {
+    pub fn stage() -> AdHoc {
         AdHoc::on_ignite("CharacterProfile Endpoint", |r| async move {
             r.mount(
                 "/characters",

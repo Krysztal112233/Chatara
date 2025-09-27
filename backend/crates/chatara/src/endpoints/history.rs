@@ -21,7 +21,7 @@ use crate::{
 pub struct HistoryEndpoint;
 
 impl HistoryEndpoint {
-    pub fn adhoc() -> AdHoc {
+    pub fn stage() -> AdHoc {
         AdHoc::on_ignite("History Endpoint", |r| async move {
             r.mount(
                 "/histories",

@@ -10,7 +10,7 @@ use crate::{
 pub struct RootEndpoint;
 
 impl RootEndpoint {
-    pub fn adhoc() -> AdHoc {
+    pub fn stage() -> AdHoc {
         AdHoc::on_ignite("Root Endpoint", |r| async move {
             r.mount("/", routes![all_options, test_auth0])
         })
