@@ -8,8 +8,15 @@ import {
   Divider,
   Chip,
   Tooltip,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
 } from '@heroui/react'
-import { PiPlus } from 'react-icons/pi'
+import { PiPlus, PiFileText, PiSparkle } from 'react-icons/pi'
+import { useNavigate } from '@tanstack/react-router'
 
 interface Chat {
   id: number
@@ -26,6 +33,13 @@ interface SidebarProps {
 }
 
 export function Sidebar({ chats, isCollapsed }: SidebarProps) {
+  const { isOpen, onOpen, onOpenChange } = useDisclosure()
+  const navigate = useNavigate()
+
+  const handlePresetCharacters = () => {
+    navigate({ to: '/discover' }).catch(console.error)
+    onOpenChange()
+  }
   return (
     <>
       {/* 侧边栏内容 - 折叠时隐藏 */}
@@ -42,6 +56,7 @@ export function Sidebar({ chats, isCollapsed }: SidebarProps) {
                 variant="flat"
                 size="sm"
                 isIconOnly
+                onPress={onOpen}
               >
                 <PiPlus size={16} />
               </Button>
@@ -112,8 +127,63 @@ export function Sidebar({ chats, isCollapsed }: SidebarProps) {
             ))}
           </div>
         </ScrollShadow>
-
       </div>
+
+      {/* 新建角色模态框 */}
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="lg">
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                创建新角色
+              </ModalHeader>
+              <ModalBody className="space-y-4">
+                <div className="grid gap-4">
+                  {/* 使用预设角色 */}
+                  <Button
+                    size="lg"
+                    variant="flat"
+                    className="h-auto p-6 justify-start"
+                    startContent={<PiSparkle size={24} />}
+                    onPress={handlePresetCharacters}
+                  >
+                    <div className="text-left">
+                      <div className="font-medium">使用预设角色</div>
+                      <div className="text-sm text-default-500 mt-1">
+                        从精心设计的角色库中选择，包括历史人物、文学角色等
+                      </div>
+                    </div>
+                  </Button>
+
+                  {/* 上传文档生成角色 */}
+                  <Button
+                    size="lg"
+                    variant="flat"
+                    className="h-auto p-6 justify-start"
+                    startContent={<PiFileText size={24} />}
+                    isDisabled
+                  >
+                    <div className="text-left">
+                      <div className="font-medium">上传文档生成角色</div>
+                      <div className="text-sm text-default-500 mt-1">
+                        上传 PDF、TXT 等文档，AI 智能分析生成专属角色
+                      </div>
+                      <div className="text-xs text-default-400 mt-1">
+                        功能开发中，敬请期待
+                      </div>
+                    </div>
+                  </Button>
+                </div>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  取消
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </>
   )
 }
