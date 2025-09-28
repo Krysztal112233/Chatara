@@ -1,5 +1,6 @@
 use std::fmt::Display;
 
+use log::info;
 use rocket::{form::FromForm, request::FromParam};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -24,7 +25,11 @@ impl Sqid {
             return Err(Error::Sqid(sqids::Error::AlphabetUniqueCharacters));
         }
 
-        Ok(Uuid::from_u64_pair(nums[0], nums[1]))
+        let uid = Uuid::from_u64_pair(nums[0], nums[1]);
+
+        info!("from Sqid to Uuid: {} -> {}", self.0, uid);
+
+        Ok(uid)
     }
 }
 

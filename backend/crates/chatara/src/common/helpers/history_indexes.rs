@@ -88,7 +88,7 @@ pub trait HistoryIndexesHelper {
         Ok(HistoryIndexes::find()
             .filter(
                 Condition::all()
-                    .add(history_indexes::Column::BelongUser.eq(&user))
+                    // .add(history_indexes::Column::BelongUser.eq(&user))
                     .add(history_indexes::Column::Id.eq(id)),
             )
             .one(db)
