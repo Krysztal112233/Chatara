@@ -8,6 +8,7 @@ use crate::{
     error::Error,
 };
 
+#[allow(unused)]
 #[async_trait]
 pub trait CharacterProfilesHelper {
     async fn get_character<C>(id: Uuid, db: &C) -> Result<Option<character_profiles::Model>, Error>
@@ -20,6 +21,8 @@ pub trait CharacterProfilesHelper {
     async fn create_character<T, C>(
         name: T,
         settings: serde_json::Value,
+        prompt: T,
+        description: T,
         db: &C,
     ) -> Result<character_profiles::Model, Error>
     where
@@ -31,6 +34,8 @@ pub trait CharacterProfilesHelper {
             created_at: Set(Local::now().into()),
             name: Set(name.into()),
             settings: Set(settings),
+            prompt: Set(prompt.into()),
+            description: Set(description.into()),
         }
         .insert(db)
         .await?)

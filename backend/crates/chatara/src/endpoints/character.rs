@@ -11,7 +11,7 @@ use uuid::Uuid;
 use crate::{
     common::{
         guards::auth::AuthGuard, helpers::character_profiles::CharacterProfilesHelper,
-        requests::Sqid, CommonResponse, PagedData,
+        requests::Sqid, tools::GenMetaClient, CommonResponse, PagedData,
     },
     endpoints::character::response::{CharacterProfileVO, CreateCharacterProfileRequest},
     entity::{character_profiles, prelude::*},
@@ -93,7 +93,9 @@ async fn get_character(
 #[post("/", data = "<profile>")]
 async fn create_character(
     profile: Json<CreateCharacterProfileRequest>,
+
     auth: AuthGuard,
+    meta: GenMetaClient,
     db: &State<DatabaseConnection>,
 ) {
 }

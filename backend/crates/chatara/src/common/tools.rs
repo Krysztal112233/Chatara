@@ -1,7 +1,7 @@
 use std::ops::Deref;
 
 use chatara_tool::{
-    asr::AutomaticSpeechRecognitionTool, common::PresettedOpenAIClient,
+    asr::AutomaticSpeechRecognitionTool, common::PresettedOpenAIClient, meta::GenMetaTool,
     profile::CharacterProfileTool, tts::Text2SpeechTool,
 };
 use log::error;
@@ -92,5 +92,37 @@ impl<'r> FromRequest<'r> for TTSClient {
         let client = Text2SpeechTool::new(config.url, config.model, config.token);
 
         Outcome::Success(TTSClient(client))
+    }
+}
+
+#[derive(Debug)]
+pub struct GenMetaClient(GenMetaTool);
+
+impl Deref for GenMetaClient {
+    type Target = GenMetaTool;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+#[async_trait]
+impl<'r> FromRequest<'r> for GenMetaClient {
+    type Error = ();
+    async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
+        let config = request.rocket().state::<ChataraConfig>().unwrap();
+        let config = config.tool.meta.clone();
+
+        let Ok(openai_client) = OpenAIClientBuilder::new()
+            .with_endpoint(config.url)
+            .with_api_key(config.token.clone())
+            .build()
+            .inspect_err(|e| error!("failed constructing OpenAIClient: {e}"))
+        else {
+            return Outcome::Error((Status::InternalServerError, ()));
+        };
+        let client = PresettedOpenAIClient::new(openai_client, config.model);
+
+        Outcome::Success(GenMetaClient(GenMetaTool::new(client)))
     }
 }
