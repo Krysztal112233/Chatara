@@ -4,6 +4,7 @@ import { Spinner } from '@heroui/react'
 import { MessageList } from '@/components/chat/MessageList'
 import { ChatInput } from '@/components/chat/ChatInput'
 import { useHistoryMessages } from '@/lib/api/histories'
+import { useCharacter } from '@/lib/api/characters'
 
 export const Route = createFileRoute('/_chat/chat/$characterId/$sessionId')({
   component: ChatSession,
@@ -11,8 +12,9 @@ export const Route = createFileRoute('/_chat/chat/$characterId/$sessionId')({
 
 
 function ChatSession() {
-  const { sessionId } = Route.useParams()
+  const { sessionId, characterId } = Route.useParams()
   const { messages: apiMessages, isLoading, error } = useHistoryMessages(sessionId === 'newChat' ? '' : sessionId)
+  const { character } = useCharacter(characterId)
 
 
   // Transform API messages to MessageList format
@@ -62,8 +64,8 @@ function ChatSession() {
         <title>{getSessionTitle()}</title>
       </Head>
       <div className="flex-1 flex flex-col h-full">
-        <MessageList messages={messages} />
-        <ChatInput />
+        <MessageList messages={messages} characterAvatar={character?.settings.avatar} />
+        <ChatInput onSend={() => {}}/>
       </div>
     </>
   )

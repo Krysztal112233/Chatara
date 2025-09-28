@@ -9,22 +9,20 @@ import { CharacterSidebar } from '@/components/chat/CharacterSidebar'
 import { LeftPanel } from '@/components/chat/LeftPanel'
 import { RightPanel } from '@/components/chat/RightPanel'
 import { Head } from '@unhead/react'
-import { getSessionsForCharacter } from '@/store/chatStore'
 import type { RoleSettings } from '@/components/chat/RightPanel'
 import { useCharacters } from '@/lib/api/characters'
+import { useHistoryIndexesForCharacter } from '@/lib/api/histories'
 
 export const Route = createFileRoute('/_chat/chat')({
   component: Chat,
 })
 
 // 角色设定数据
-const getRoleSettingsForCharacter = (characterName: string): RoleSettings => ({
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const getRoleSettingsForCharacter = (_characterName: string): RoleSettings => ({
   title: '角色设定',
   descriptions: [
-    `🎭 经典文学和影视角色扮演`,
-    `🧠 ${characterName}的专业知识和独特视角`,
-    `🗣️ 提供沉浸式语音对话体验`,
-    `💭 深度还原角色性格和说话方式`,
+    'TODO: Role Settings',
   ],
 })
 
@@ -38,9 +36,8 @@ function Chat() {
     (char) => char.id === selectedCharacterId
   )
   const isInCharacterPage = routerState.location.pathname !== '/chat'
-  const characterSessions = selectedCharacter
-    ? getSessionsForCharacter(selectedCharacter.id)
-    : []
+  const characterSessions =
+    useHistoryIndexesForCharacter(selectedCharacterId)
 
   const handleNewSession = () => {
     if (selectedCharacter) {
@@ -129,7 +126,7 @@ function Chat() {
               minWidthPercent={0.2}
               maxWidthPercent={0.5}
               roleSettings={roleSettings}
-              conversations={characterSessions}
+              characterSessions={characterSessions}
               onNewSession={handleNewSession}
               onRoleSettingsClick={handleRoleSettingsClick}
               onConversationClick={handleConversationClick}

@@ -1,14 +1,15 @@
 import { Button, ScrollShadow, Divider } from '@heroui/react'
-import { PiX, PiPlus, PiStar, PiStarFill } from 'react-icons/pi'
+import { PiX, PiPlus } from 'react-icons/pi'
 import { getRouteApi } from '@tanstack/react-router'
-import type { SessionGroup } from '@/store/chatStore'
+import type { HistoryIndex } from '@/lib/api/histories'
 import type { CharacterProfile } from '@/lib/api/characters'
+import { groupCharacterSessions } from '@/lib/helper/character-session-grouper'
 
 const sessionRoute = getRouteApi('/_chat/chat/$characterId/$sessionId')
 
 interface MobileSessionHistoryProps {
   selectedCharacter: CharacterProfile | null
-  characterSessions: SessionGroup[]
+  characterSessions: HistoryIndex[]
   onClose: () => void
   onNewSession: () => void
   onConversationClick: (conversationId: string) => void
@@ -21,6 +22,8 @@ export function MobileSessionHistory({
   onNewSession,
   onConversationClick,
 }: MobileSessionHistoryProps) {
+  const characterSessionsGrouped = groupCharacterSessions(characterSessions)
+
   const sessionParams = sessionRoute.useParams()
   const activeSessionId = sessionParams.sessionId
 
@@ -49,10 +52,7 @@ export function MobileSessionHistory({
         <div className='p-4 border-b border-divider'>
           <h3 className='text-sm font-medium mb-2'>角色设定</h3>
           <div className='text-xs text-foreground-500 space-y-1'>
-            <p>🎭 经典文学和影视角色扮演</p>
-            <p>🧠 {selectedCharacter.name}的专业知识和独特视角</p>
-            <p>🗣️ 提供沉浸式语音对话体验</p>
-            <p>💭 深度还原角色性格和说话方式</p>
+            <p>TODO: Role Settings</p>
           </div>
         </div>
       )}
@@ -74,18 +74,13 @@ export function MobileSessionHistory({
       <div className='flex-1 overflow-hidden'>
         <div className='p-4'>
           <h3 className='text-sm font-medium mb-3'>
-            对话历史 (
-            {characterSessions.reduce(
-              (acc, group) => acc + group.items.length,
-              0
-            )}
-            )
+            对话历史 ({characterSessions.length})
           </h3>
         </div>
 
         <ScrollShadow className='flex-1 px-4'>
           <div className='space-y-4 pb-4'>
-            {characterSessions.map((group, groupIndex) => (
+            {characterSessionsGrouped.map((group, groupIndex) => (
               // FIXIT: replace with group id
               <div key={groupIndex}>
                 <h4 className='text-xs font-medium text-foreground-600 mb-2 px-1'>
@@ -104,11 +99,11 @@ export function MobileSessionHistory({
                         handleConversationClick(item.id)
                       }}
                     >
-                      {item.starred ? (
+                      {/* {item.starred ? (
                         <PiStarFill className='text-sm text-primary fill-current mt-0.5 flex-shrink-0' />
                       ) : (
                         <PiStar className='text-sm text-foreground-400 mt-0.5 flex-shrink-0' />
-                      )}
+                      )} */}
                       <div className='flex-1 min-w-0'>
                         <div className='flex items-center justify-between mb-1'>
                           <span
@@ -118,20 +113,21 @@ export function MobileSessionHistory({
                                 : 'text-foreground'
                             }`}
                           >
-                            {item.title}
+                            {/* TODO: Title */}
+                            {item.id}
                           </span>
-                          <span className='text-xs text-foreground-500 flex-shrink-0 ml-2'>
+                          {/* <span className='text-xs text-foreground-500 flex-shrink-0 ml-2'>
                             {item.timestamp}
-                          </span>
+                          </span> */}
                         </div>
-                        {item.lastMessage && (
+                        {/* {item.lastMessage && (
                           <p className='text-xs text-foreground-500 truncate mb-1'>
                             {item.lastMessage}
                           </p>
-                        )}
-                        <span className='text-xs text-foreground-400'>
+                        )} */}
+                        {/* <span className='text-xs text-foreground-400'>
                           {item.messageCount} 条消息
-                        </span>
+                        </span> */}
                       </div>
                     </div>
                   ))}

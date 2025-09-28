@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Button,
   Card,
   CardBody,
@@ -104,11 +103,9 @@ export function CharacterSidebar({
               >
                 <CardBody className='p-3'>
                   <div className='flex items-start space-x-3'>
-                    <Avatar
-                      size='sm'
-                      src={character.settings.avatar || `https://i.pravatar.cc/150?u=${character.name}`}
-                      className='flex-shrink-0'
-                    />
+                    <div className='flex-shrink-0 w-8 h-8 flex items-center justify-center text-xl'>
+                      {character.settings.avatar || '🎭'}
+                    </div>
                     <div className='flex-1 min-w-0'>
                       <div className='flex items-center justify-between'>
                         <h3

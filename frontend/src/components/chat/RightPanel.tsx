@@ -2,14 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useAtom } from 'jotai'
 import { useParams } from '@tanstack/react-router'
 import { Button, Tooltip, Divider } from '@heroui/react'
-import {
-  PiCaretLeft,
-  PiCaretRight,
-  PiStar,
-  PiGear,
-  PiPlus,
-  PiStarFill,
-} from 'react-icons/pi'
+import { PiCaretLeft, PiCaretRight, PiGear, PiPlus } from 'react-icons/pi'
 import {
   rightPanelWidthAtom,
   rightPanelCollapsedAtom,
@@ -20,20 +13,8 @@ import {
   rightPanelIsHoveringHeightAtom,
 } from '@/store/sidebarStore'
 import { useWindowDimensions } from '@/hooks/useWindowDimensions'
-
-export interface ConversationItem {
-  id: string
-  title: string
-  lastMessage?: string
-  timestamp: string
-  messageCount: number
-  starred: boolean
-}
-
-export interface ConversationGroup {
-  title: string
-  items: ConversationItem[]
-}
+import type { HistoryIndex } from '@/lib/api/histories'
+import { groupCharacterSessions } from '@/lib/helper/character-session-grouper'
 
 export interface RoleSettings {
   title: string
@@ -46,7 +27,7 @@ interface RightPanelProps {
   minHeightPercent?: number
   maxHeightPercent?: number
   roleSettings: RoleSettings
-  conversations: ConversationGroup[]
+  characterSessions: HistoryIndex[]
   onNewSession?: () => void
   onRoleSettingsClick?: () => void
   onConversationClick?: (conversationId: string) => void
@@ -58,11 +39,13 @@ export function RightPanel({
   minHeightPercent = 0.2,
   maxHeightPercent = 0.8,
   roleSettings,
-  conversations,
+  characterSessions,
   onNewSession,
   onRoleSettingsClick,
   onConversationClick,
 }: RightPanelProps) {
+  const characterSessionsGrouped = groupCharacterSessions(characterSessions)
+
   const [panelWidth, setPanelWidth] = useAtom(rightPanelWidthAtom)
 
   const { sessionId: currentSessionId } = useParams({ strict: false })
@@ -177,8 +160,12 @@ export function RightPanel({
           className={`absolute right-0 top-1/2 -translate-y-1/2 z-20 transition-all duration-200 ${
             isHoveringCollapse ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
           }`}
-          onMouseEnter={() => { setIsHoveringCollapse(true); }}
-          onMouseLeave={() => { setIsHoveringCollapse(false); }}
+          onMouseEnter={() => {
+            setIsHoveringCollapse(true)
+          }}
+          onMouseLeave={() => {
+            setIsHoveringCollapse(false)
+          }}
         >
           <Tooltip content='展开右侧面板' placement='left'>
             <Button
@@ -241,8 +228,12 @@ export function RightPanel({
                   isHoveringHeight ? 'bg-primary/20' : ''
                 }`}
                 onMouseDown={handleHeightMouseDown}
-                onMouseEnter={() => { setIsHoveringHeight(true); }}
-                onMouseLeave={() => { setIsHoveringHeight(false); }}
+                onMouseEnter={() => {
+                  setIsHoveringHeight(true)
+                }}
+                onMouseLeave={() => {
+                  setIsHoveringHeight(false)
+                }}
               >
                 <div
                   className={`w-full h-full ${
@@ -259,12 +250,7 @@ export function RightPanel({
             >
               <div className='flex items-center justify-between mb-4'>
                 <h3 className='text-lg font-semibold'>
-                  对话历史 (
-                  {conversations.reduce(
-                    (acc, group) => acc + group.items.length,
-                    0
-                  )}
-                  )
+                  对话历史 ({characterSessions.length})
                 </h3>
               </div>
 
@@ -282,7 +268,7 @@ export function RightPanel({
               </div>
 
               <div className='flex-1 overflow-y-auto space-y-4'>
-                {conversations.map((group, groupIndex) => (
+                {characterSessionsGrouped.map((group, groupIndex) => (
                   <div key={group.title}>
                     <h4 className='text-sm font-medium text-foreground-600 mb-2'>
                       {group.title}
@@ -298,11 +284,11 @@ export function RightPanel({
                           }`}
                           onClick={() => onConversationClick?.(item.id)}
                         >
-                          {item.starred ? (
+                          {/* {item.starred ? (
                             <PiStarFill className='text-sm text-primary fill-current mt-0.5 flex-shrink-0' />
                           ) : (
                             <PiStar className='text-sm text-foreground-400 mt-0.5 flex-shrink-0' />
-                          )}
+                          )} */}
                           <div className='flex-1 min-w-0'>
                             <div className='flex items-center justify-between mb-1'>
                               <span
@@ -312,25 +298,26 @@ export function RightPanel({
                                     : 'text-foreground'
                                 }`}
                               >
-                                {item.title}
+                                {/* TODO: Title */}
+                                {item.id}
                               </span>
-                              <span className='text-xs text-foreground-500 flex-shrink-0 ml-2'>
+                              {/* <span className='text-xs text-foreground-500 flex-shrink-0 ml-2'>
                                 {item.timestamp}
-                              </span>
+                              </span> */}
                             </div>
-                            {item.lastMessage && (
+                            {/* {item.lastMessage && (
                               <p className='text-xs text-foreground-500 truncate mb-1'>
                                 {item.lastMessage}
                               </p>
                             )}
                             <span className='text-xs text-foreground-400'>
                               {item.messageCount} 条消息
-                            </span>
+                            </span> */}
                           </div>
                         </div>
                       ))}
                     </div>
-                    {groupIndex < conversations.length - 1 && (
+                    {groupIndex < characterSessionsGrouped.length - 1 && (
                       <Divider className='my-3' />
                     )}
                   </div>
@@ -344,8 +331,12 @@ export function RightPanel({
                 isHoveringCollapse ? 'bg-primary/20' : ''
               }`}
               onMouseDown={handleWidthMouseDown}
-              onMouseEnter={() => { setIsHoveringCollapse(true); }}
-              onMouseLeave={() => { setIsHoveringCollapse(false); }}
+              onMouseEnter={() => {
+                setIsHoveringCollapse(true)
+              }}
+              onMouseLeave={() => {
+                setIsHoveringCollapse(false)
+              }}
             >
               <div
                 className={`w-full h-full ${
@@ -364,8 +355,12 @@ export function RightPanel({
             isHoveringCollapse ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
           }`}
           style={{ right: `${String(panelWidth - 16)}px` }}
-          onMouseEnter={() => { setIsHoveringCollapse(true); }}
-          onMouseLeave={() => { setIsHoveringCollapse(false); }}
+          onMouseEnter={() => {
+            setIsHoveringCollapse(true)
+          }}
+          onMouseLeave={() => {
+            setIsHoveringCollapse(false)
+          }}
         >
           <Tooltip content='折叠右侧面板' placement='left'>
             <Button

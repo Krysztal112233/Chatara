@@ -7,7 +7,7 @@ const mockCharacters = [
     name: '哈利波特',
     settings: {
       description: '霍格沃茨魔法学校学生，拥有格兰芬多的勇气',
-      avatar: 'https://i.pravatar.cc/150?u=harry-potter',
+      avatar: '🧙‍♂️',
     },
     created_at: '2024-01-15T10:30:00Z',
   },
@@ -16,7 +16,7 @@ const mockCharacters = [
     name: '苏格拉底',
     settings: {
       description: '古希腊哲学家，以苏格拉底式问答法闻名',
-      avatar: 'https://i.pravatar.cc/150?u=socrates',
+      avatar: '🏛️',
     },
     created_at: '2024-01-14T14:20:00Z',
   },
@@ -25,7 +25,7 @@ const mockCharacters = [
     name: '爱因斯坦',
     settings: {
       description: '理论物理学家，相对论的创立者',
-      avatar: 'https://i.pravatar.cc/150?u=einstein',
+      avatar: '🧬',
     },
     created_at: '2024-01-13T09:15:00Z',
   },
@@ -34,7 +34,7 @@ const mockCharacters = [
     name: '莎士比亚',
     settings: {
       description: '英国文学史上最杰出的戏剧家和诗人',
-      avatar: 'https://i.pravatar.cc/150?u=shakespeare',
+      avatar: '🎭',
     },
     created_at: '2024-01-12T16:45:00Z',
   },

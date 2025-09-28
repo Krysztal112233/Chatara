@@ -1,4 +1,4 @@
-import { Avatar, Button } from '@heroui/react'
+import { Button } from '@heroui/react'
 import { PiList, PiCaretLeft } from 'react-icons/pi'
 
 interface ChatHeaderProps {
@@ -34,11 +34,9 @@ export function ChatHeader({
           </Button>
         )}
 
-        <Avatar
-          size='sm'
-          src={avatar || 'https://i.pravatar.cc/150?u=current'}
-          className='flex-shrink-0'
-        />
+        <div className='flex-shrink-0 w-8 h-8 flex items-center justify-center text-xl'>
+          {avatar || '🎭'}
+        </div>
         <div>
           <h2 className='font-semibold text-foreground'>{title}</h2>
           <p className='text-xs text-default-500'>{description}</p>

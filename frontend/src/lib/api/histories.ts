@@ -8,13 +8,13 @@ interface PagedData<T = unknown> {
   content: T[]
 }
 
-interface HistoryIndex {
+export interface HistoryIndex {
   id: string
   character: string
   updated_at: string
 }
 
-interface History {
+export interface History {
   id: string
   role: 'System' | 'User' | 'Character'
   content: string
@@ -30,18 +30,18 @@ type CreateHistoryIndexResponse = CommonResponse<HistoryIndex>
 type GetHistoryMessagesResponse = CommonResponse<PagedData<History>>
 type CreateHistoryMessageResponse = CommonResponse<History>
 
-export function useHistories(userId?: string) {
+export function useHistoryIndexes() {
   const fetcher = useFetcher()
   const { data, error, isLoading, mutate } = useSWR<
     GetHistoriesResponse,
     Error
   >(
-    `/histories${userId ? `?user=${userId}` : ''}`,
+    '/histories',
     async (url: string) => fetcher.get(url) as Promise<GetHistoriesResponse>
   )
 
   return {
-    histories: data?.payload?.content ?? [],
+    historyIndexes: data?.payload?.content ?? [],
     hasNext: data?.payload?.next ?? false,
     size: data?.payload?.size ?? 0,
     error,
@@ -49,6 +49,17 @@ export function useHistories(userId?: string) {
     mutate,
   }
 }
+
+export function useHistoryIndexesForCharacter(characterId?: string) {
+  const historyIndexes = useHistoryIndexes()
+  if (!characterId) {
+    return []
+  }
+  return historyIndexes.historyIndexes.filter((index) => index.character === characterId)
+}
+
+// Legacy alias for backward compatibility
+export const useHistories = useHistoryIndexes
 
 export function useCreateHistoryIndex() {
   const fetcher = useFetcher()

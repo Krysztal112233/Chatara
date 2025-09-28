@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Button,
   Card,
   CardBody,
@@ -91,11 +90,9 @@ export function Sidebar({ chats, isCollapsed }: SidebarProps) {
               >
                 <CardBody className="p-3">
                   <div className="flex items-start space-x-3">
-                    <Avatar
-                      size="sm"
-                      src={chat.avatar}
-                      className="flex-shrink-0"
-                    />
+                    <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-xl">
+                      🎭
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <h3 className="text-sm font-medium truncate">
