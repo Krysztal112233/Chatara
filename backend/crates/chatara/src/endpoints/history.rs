@@ -1,9 +1,10 @@
 use chatara_tool::chat::ChatTool;
 use migration::index;
+use openai_api_rs::v1::chat_completion::{ChatCompletionMessage, Content, MessageRole};
 use rocket::{
     data, delete, fairing::AdHoc, get, http::Status, post, routes, serde::json::Json, State,
 };
-use sea_orm::{DatabaseConnection, TransactionTrait};
+use sea_orm::{DatabaseConnection, EntityTrait, TransactionTrait};
 use sqids::Sqids;
 use uuid::Uuid;
 
@@ -115,13 +116,28 @@ async fn create_history(
     let db = db.inner().begin().await?;
     let data = data.0;
 
-    let _ = HistoryIndexes::get_session_of_user(auth.uid, index, &db).await?;
+    let session = HistoryIndexes::get_session_of_user(auth.uid, index, &db).await?;
+
+    let p = CharacterProfiles::find_by_id(session.belong_character_profile)
+        .one(&db)
+        .await?
+        .ok_or(Error::Db(sea_orm::DbErr::RecordNotFound(format!(
+            "{}",
+            session.belong_character_profile
+        ))))?;
 
     // 成功提取到记忆
     let memories = Histories::get_memory(index, &db)
         .await?
         .into_iter()
         .map(|it| it.into_chat_completion())
+        .chain(vec![ChatCompletionMessage {
+            role: MessageRole::system,
+            content: Content::Text(p.prompt),
+            name: None,
+            tool_calls: None,
+            tool_call_id: None,
+        }])
         .collect::<Vec<_>>();
     chat.fill_memories(memories.clone());
     let response = chat.chat(&data.content).await?;
