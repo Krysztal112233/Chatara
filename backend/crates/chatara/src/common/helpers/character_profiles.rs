@@ -23,6 +23,7 @@ pub trait CharacterProfilesHelper {
         settings: serde_json::Value,
         prompt: T,
         description: T,
+        user: T,
         db: &C,
     ) -> Result<character_profiles::Model, Error>
     where
@@ -36,6 +37,7 @@ pub trait CharacterProfilesHelper {
             settings: Set(settings),
             prompt: Set(prompt.into()),
             description: Set(description.into()),
+            belong_user: Set(user.into()),
         }
         .insert(db)
         .await?)

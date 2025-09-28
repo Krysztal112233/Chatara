@@ -95,9 +95,11 @@ async fn create_character(
     profile: Json<CreateCharacterProfileRequest>,
 
     auth: AuthGuard,
-    meta: GenMetaClient,
     db: &State<DatabaseConnection>,
 ) {
+
+
+
 }
 
 mod response {

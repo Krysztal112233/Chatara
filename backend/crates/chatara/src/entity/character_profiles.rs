@@ -15,17 +15,32 @@ pub struct Model {
     pub settings: Json,
     pub prompt: String,
     pub description: String,
+    pub belong_user: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(has_many = "super::history_indexes::Entity")]
     HistoryIndexes,
+    #[sea_orm(
+        belongs_to = "super::users::Entity",
+        from = "Column::BelongUser",
+        to = "super::users::Column::Id",
+        on_update = "Cascade",
+        on_delete = "Cascade"
+    )]
+    Users,
 }
 
 impl Related<super::history_indexes::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::HistoryIndexes.def()
+    }
+}
+
+impl Related<super::users::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Users.def()
     }
 }
 
