@@ -2,6 +2,10 @@
 
 和你喜欢的角色对话跨时空聊天
 
+演示视频位于 docs/intro.mp4
+
+线上 Demo： https://chatara.dev
+
 ## 前置条件
 
 在尝试部署该应用之前，你需要将 `.env.sample` 文件复制一份成为 `.env` 文件，并且获取如下的凭证：
