@@ -46,9 +46,7 @@ impl AutomaticSpeechRecognitionTool {
             Local::now().timestamp_millis() - start_at.timestamp_millis()
         );
 
-        let response = dbg!(response);
-
-        Ok(response
+        Ok(dbg!(response)
             .output
             .choices
             .first()

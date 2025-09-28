@@ -92,10 +92,10 @@ impl ChataraStorage {
             // 感谢伟大的 tokio-utils 我不知道怎么回事反正他跑起来了。
             let mut stream = tokio_util::io::StreamReader::new(resp);
 
-            let r = bucket.put_object_stream(&mut stream, path).await;
+            let r = bucket.put_object_stream(&mut stream, &path).await;
             match r {
                 Ok(response) => info!(
-                    "streamed url `{url}` with status {} sized {} bytes - cost {}ms",
+                    "streamed url `{url}` with status {} sized {} bytes - {}ms, path `{path}`",
                     response.status_code(),
                     response.uploaded_bytes(),
                     Local::now().timestamp_millis() - started

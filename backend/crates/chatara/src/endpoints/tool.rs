@@ -1,23 +1,29 @@
 use std::path::PathBuf;
 
 use chatara_storage::ChataraStorage;
+use chrono::naive::serde::ts_microseconds;
 use log::info;
 use rocket::{
+    data,
     fairing::AdHoc,
     form::{Form, Strict},
     post, routes,
     serde::json::Json,
     State,
 };
+use sqids::Sqids;
 use uuid::Uuid;
 
 use crate::{
     common::{
         guards::auth::AuthGuard,
-        tools::{ASRClient, CharacterProfileGenerator},
+        requests::ToSqid,
+        tools::{ASRClient, CharacterProfileGenerator, TTSClient},
         CommonResponse,
     },
-    endpoints::tool::response::{ASRMultipart, CharacterSettingRequest},
+    endpoints::tool::response::{
+        ASRMultipart, CharacterSettingRequest, Text2SpeechRequest, Text2SpeechVO,
+    },
     entity::sea_orm_active_enums::ResourceType,
     error::Error,
 };
@@ -64,8 +70,31 @@ async fn create_asr(
     Ok(CommonResponse::default().set_data(asr_result))
 }
 
-#[post("/tts")]
-async fn create_tts(auth: AuthGuard) {}
+#[post("/tts", data = "<data>")]
+async fn create_tts(
+    data: Json<Text2SpeechRequest>,
+
+    auth: AuthGuard,
+    tts: TTSClient,
+
+    sqid: &State<Sqids>,
+    storage: &State<ChataraStorage>,
+) -> Result<CommonResponse<Text2SpeechVO>, Error> {
+    let data = data.0;
+    let url = tts
+        .do_tts_with(data.text, data.voice, data.language)
+        .await?;
+
+    let id = Uuid::now_v7();
+    let path = PathBuf::from("/tmp").join(id.to_string());
+    storage
+        .background_upload(url.clone(), path.display().to_string())
+        .await?;
+
+    let sqid = id.to_sqid_with(sqid);
+
+    Ok(CommonResponse::default().set_data(Text2SpeechVO { id: sqid, url }))
+}
 
 #[post("/character/settings", data = "<data>")]
 async fn gen_character_setting(
@@ -89,7 +118,9 @@ async fn gen_character_prompt(
 
 mod response {
     use rocket::{fs::TempFile, FromForm};
-    use serde::Deserialize;
+    use serde::{Deserialize, Serialize};
+
+    use crate::common::requests::Sqid;
 
     #[derive(Debug, FromForm)]
     pub struct ASRMultipart<'r> {
@@ -99,5 +130,18 @@ mod response {
     #[derive(Debug, Deserialize)]
     pub struct CharacterSettingRequest {
         pub text: String,
+    }
+
+    #[derive(Debug, Deserialize)]
+    pub struct Text2SpeechRequest {
+        pub text: String,
+        pub voice: Option<String>,
+        pub language: Option<String>,
+    }
+
+    #[derive(Debug, Serialize)]
+    pub struct Text2SpeechVO {
+        pub id: Sqid,
+        pub url: String,
     }
 }

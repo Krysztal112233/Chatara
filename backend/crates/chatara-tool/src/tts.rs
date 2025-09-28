@@ -37,14 +37,14 @@ impl Text2SpeechTool {
         lang: Option<String>,
     ) -> Result<String, Error> {
         let voice = voice.unwrap_or("Cherry".into());
-        let lang = lang.unwrap_or("Lang".into());
+        let lang = lang.unwrap_or("Chinese".into());
 
         let body = build_json(&self.model, &text, lang, voice);
 
         info!("starting TTS with text lenght `{}`", text.len());
 
         let start_at = Local::now();
-        let response = self
+        let response = dbg!(self
             .client
             .post(&self.openai_url)
             .bearer_auth(&self.token)
@@ -54,13 +54,11 @@ impl Text2SpeechTool {
             .inspect_err(|e| error!("failed to send request to do TTS: {e}"))?
             .json::<Root>()
             .await
-            .inspect_err(|e| error!("parsing failed: {e}"))?;
+            .inspect_err(|e| error!("parsing failed: {e}"))?);
         info!(
             "TTS succeed - cost {}ms",
             Local::now().timestamp_millis() - start_at.timestamp_millis()
         );
-
-        let response = dbg!(response);
 
         Ok(response.output.audio.url)
     }
