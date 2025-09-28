@@ -2,7 +2,7 @@ use std::ops::Deref;
 
 use chatara_tool::{
     asr::AutomaticSpeechRecognitionTool, common::PresettedOpenAIClient,
-    profile::CharacterProfileTool,
+    profile::CharacterProfileTool, tts::Text2SpeechTool,
 };
 use log::error;
 use openai_api_rs::v1::api::OpenAIClientBuilder;
@@ -68,5 +68,29 @@ impl<'r> FromRequest<'r> for CharacterProfileGenerator {
         let client = PresettedOpenAIClient::new(openai_client, config.model);
 
         Outcome::Success(CharacterProfileGenerator(CharacterProfileTool::new(client)))
+    }
+}
+
+#[derive(Debug)]
+pub struct TTSClient(Text2SpeechTool);
+
+impl Deref for TTSClient {
+    type Target = Text2SpeechTool;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+#[async_trait]
+impl<'r> FromRequest<'r> for TTSClient {
+    type Error = ();
+    async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
+        let config = request.rocket().state::<ChataraConfig>().unwrap();
+        let config = config.tool.tts.clone();
+
+        let client = Text2SpeechTool::new(config.url, config.model, config.token);
+
+        Outcome::Success(TTSClient(client))
     }
 }
