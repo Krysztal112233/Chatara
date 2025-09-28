@@ -1,8 +1,8 @@
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 
 use chatara_tool::{
-    asr::AutomaticSpeechRecognitionTool, common::PresettedOpenAIClient, meta::GenMetaTool,
-    profile::CharacterProfileTool, tts::Text2SpeechTool,
+    asr::AutomaticSpeechRecognitionTool, chat::ChatTool, common::PresettedOpenAIClient,
+    meta::GenMetaTool, profile::CharacterProfileTool, tts::Text2SpeechTool,
 };
 use log::error;
 use openai_api_rs::v1::api::OpenAIClientBuilder;
@@ -124,5 +124,43 @@ impl<'r> FromRequest<'r> for GenMetaClient {
         let client = PresettedOpenAIClient::new(openai_client, config.model);
 
         Outcome::Success(GenMetaClient(GenMetaTool::new(client)))
+    }
+}
+
+#[derive(Debug)]
+pub struct ChatClient(ChatTool);
+
+impl DerefMut for ChatClient {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl Deref for ChatClient {
+    type Target = ChatTool;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+#[async_trait]
+impl<'r> FromRequest<'r> for ChatClient {
+    type Error = ();
+    async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
+        let config = request.rocket().state::<ChataraConfig>().unwrap();
+        let config = config.tool.chat.clone();
+
+        let Ok(openai_client) = OpenAIClientBuilder::new()
+            .with_endpoint(config.url)
+            .with_api_key(config.token.clone())
+            .build()
+            .inspect_err(|e| error!("failed constructing OpenAIClient: {e}"))
+        else {
+            return Outcome::Error((Status::InternalServerError, ()));
+        };
+        let client = PresettedOpenAIClient::new(openai_client, config.model);
+
+        Outcome::Success(ChatClient(ChatTool::new(client)))
     }
 }

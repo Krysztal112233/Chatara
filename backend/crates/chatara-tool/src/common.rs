@@ -29,6 +29,13 @@ impl PresettedOpenAIClient {
     {
         PlainMessageBuilder::new(&self.model).add_system(msg)
     }
+
+    pub fn with_memories<I>(&self, memories: I) -> PlainMessageBuilder
+    where
+        I: IntoIterator<Item = ChatCompletionMessage>,
+    {
+        PlainMessageBuilder::with_memories(&self.model, memories)
+    }
 }
 
 impl DerefMut for PresettedOpenAIClient {
@@ -59,6 +66,17 @@ impl PlainMessageBuilder {
         Self {
             model: model.into(),
             msg: Vector::default(),
+        }
+    }
+
+    pub fn with_memories<T, I>(model: T, memories: I) -> Self
+    where
+        T: Into<String>,
+        I: IntoIterator<Item = ChatCompletionMessage>,
+    {
+        Self {
+            model: model.into(),
+            msg: Vector::from_iter(memories),
         }
     }
 

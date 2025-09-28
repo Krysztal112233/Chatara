@@ -1,3 +1,4 @@
+use chatara_tool::chat::ChatTool;
 use migration::index;
 use rocket::{
     data, delete, fairing::AdHoc, get, http::Status, post, routes, serde::json::Json, State,
@@ -10,14 +11,15 @@ use crate::{
     common::{
         guards::auth::AuthGuard,
         helpers::{
-            histories::HistoriesHelper,
+            histories::{HistoriesHelper, IntoChatCompletion},
             history_indexes::{self, HistoryIndexesHelper},
         },
         requests::Sqid,
+        tools::ChatClient,
         CommonResponse, PagedData,
     },
-    endpoints::history::response::{CreateHistoryRequest, HistoryVO, SessionVO},
-    entity::prelude::*,
+    endpoints::history::response::{ChatVO, CreateHistoryRequest, HistoryVO, SessionVO},
+    entity::{prelude::*, sea_orm_active_enums::ChatRole},
     error::Error,
 };
 
@@ -104,25 +106,30 @@ async fn create_history(
     index: Sqid,
     data: Json<CreateHistoryRequest>,
 
+    mut chat: ChatClient,
     auth: AuthGuard,
     sqid: &State<Sqids>,
     db: &State<DatabaseConnection>,
-) -> Result<CommonResponse<()>, Error> {
+) -> Result<CommonResponse<ChatVO>, Error> {
     let index = index.to_uuid(sqid)?;
-    // 单纯鉴权用一下。
-    let _ = HistoryIndexes::get_session_of_user(auth.uid, index, db.inner()).await?;
-
-    let memories = Histories::get_memory(index, db.inner()).await?;
-
-    //TODO: 实现流式回复
+    let db = db.inner().begin().await?;
     let data = data.0;
 
-    // 放到一个事务里。如果流式输出失败的话那么这个
-    let db = db.inner().begin().await?;
+    let _ = HistoryIndexes::get_session_of_user(auth.uid, index, &db).await?;
 
+    // 成功提取到记忆
+    let memories = Histories::get_memory(index, &db)
+        .await?
+        .into_iter()
+        .map(|it| it.into_chat_completion())
+        .collect::<Vec<_>>();
+    chat.fill_memories(memories.clone());
+    let response = chat.chat(&data.content).await?;
+    let m_chat = Histories::create_history(index, ChatRole::User, data.content, &db).await?;
+    let m_hist = Histories::create_history(index, ChatRole::System, response, &db).await?;
     db.commit().await?;
 
-    todo!()
+    Ok(CommonResponse::default().set_data(ChatVO::new(sqid, m_chat, m_hist)))
 }
 
 #[get("/<index>")]
@@ -134,8 +141,7 @@ async fn get_histories(
     db: &State<DatabaseConnection>,
 ) -> Result<CommonResponse<PagedData<HistoryVO>>, Error> {
     let index =
-        HistoryIndexes::get_session_of_user(auth.uid, index.to_uuid(sqid)?, db.inner())
-            .await?;
+        HistoryIndexes::get_session_of_user(auth.uid, index.to_uuid(sqid)?, db.inner()).await?;
 
     let historie = Histories::get_all_histories(index.id, db.inner())
         .await?
@@ -147,6 +153,8 @@ async fn get_histories(
 }
 
 mod response {
+    use core::hash;
+
     use chrono::{DateTime, FixedOffset};
     use serde::{Deserialize, Serialize};
     use sqids::Sqids;
@@ -194,6 +202,21 @@ mod response {
 
     #[derive(Debug, Deserialize)]
     pub struct CreateHistoryRequest {
-        content: String,
+        pub content: String,
+    }
+
+    #[derive(Debug, Serialize)]
+    pub struct ChatVO {
+        pub chat: HistoryVO,
+        pub history: HistoryVO,
+    }
+
+    impl ChatVO {
+        pub fn new(sqid: &sqids::Sqids, chat: histories::Model, hist: histories::Model) -> Self {
+            Self {
+                chat: HistoryVO::from_model(sqid, chat),
+                history: HistoryVO::from_model(sqid, hist),
+            }
+        }
     }
 }
