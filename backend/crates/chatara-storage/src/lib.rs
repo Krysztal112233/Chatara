@@ -40,26 +40,6 @@ impl ChataraStorage {
         Ok(Self { bucket })
     }
 
-    pub fn with_regeion(
-        name: &str,
-        region: Region,
-        access_key: &str,
-        secret_key: &str,
-    ) -> Result<Self> {
-        let bucket = s3::Bucket::new(
-            name,
-            region,
-            Credentials {
-                access_key: Some(access_key.to_string()),
-                secret_key: Some(secret_key.to_string()),
-                security_token: None,
-                session_token: None,
-                expiration: None,
-            },
-        )?;
-        Ok(Self { bucket })
-    }
-
     pub async fn upload_presign<P>(&self, path: P) -> Result<String>
     where
         P: AsRef<str>,

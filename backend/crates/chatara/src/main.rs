@@ -2,11 +2,10 @@ use std::time::Duration;
 
 use chatara_storage::ChataraStorage;
 use dotenvy::dotenv;
-use log::{info, LevelFilter};
+use log::LevelFilter;
 use migration::MigratorTrait;
 use mimalloc::MiMalloc;
 use rocket::{catchers, Rocket};
-use s3::Region;
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 
 use crate::{
@@ -92,24 +91,13 @@ async fn setup_sqids(config: &ChataraConfig) -> Result<sqids::Sqids, sqids::Erro
 }
 
 async fn setup_filestorage(config: &S3Config) -> Result<ChataraStorage, Error> {
-    let s3 = match config.account_id.clone() {
-        Some(account_id) => {
-            info!("detected R2 configuration!");
-            ChataraStorage::with_regeion(
-                &config.name,
-                Region::R2 { account_id },
-                &config.access_key,
-                &config.secret_key,
-            )?
-        }
-        None => ChataraStorage::new(
-            &config.name,
-            &config.regeion,
-            &config.access_key,
-            &config.secret_key,
-            &config.endpoint,
-        )?,
-    };
+    let s3 = ChataraStorage::new(
+        &config.name,
+        &config.regeion,
+        &config.access_key,
+        &config.secret_key,
+        &config.endpoint,
+    )?;
 
     Ok(s3)
 }

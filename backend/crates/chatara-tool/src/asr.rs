@@ -28,7 +28,7 @@ impl AutomaticSpeechRecognitionTool {
     pub async fn do_asr(&self, s3_url: &str) -> Result<String, Error> {
         let body = &build_json(&self.model, s3_url);
 
-        info!("starting do ASR for `{s3_url }`");
+        info!("starting ASR for `{s3_url }`");
         let start_at = Local::now();
         let response = self
             .client
@@ -42,7 +42,7 @@ impl AutomaticSpeechRecognitionTool {
             .await
             .inspect_err(|e| error!("parsing failed: {e}"))?;
         info!(
-            "do ASR succeed - cost {}ms",
+            "ASR succeed - cost {}ms",
             Local::now().timestamp_millis() - start_at.timestamp_millis()
         );
 
@@ -53,7 +53,7 @@ impl AutomaticSpeechRecognitionTool {
             .output
             .choices
             .first()
-            .ok_or(Error::Unknown("cannot do asr for input".to_string()))?
+            .ok_or(Error::Unknown("cannot do ASR for input".to_string()))?
             .message
             .content
             .first()
