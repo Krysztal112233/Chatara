@@ -1,12 +1,20 @@
-use rocket::{State, delete, fairing::AdHoc, get, post, routes, serde::json::Json};
+use jsonwebtoken::jwk::KeyAlgorithm;
+use rocket::{
+    delete, fairing::AdHoc, futures::FutureExt, get, post, routes, serde::json::Json, State,
+};
 use sea_orm::{DatabaseConnection, EntityTrait, QueryOrder};
-use serde_json::{Value, json};
+use serde_json::{json, Value};
+use sqids::Sqids;
 use uuid::Uuid;
 
 use crate::{
-    common::{CommonResponse, requests::Sqid},
+    common::{
+        guards::auth::AuthGuard, helpers::character_profiles::CharacterProfilesHelper,
+        requests::Sqid, CommonResponse, PagedData,
+    },
+    endpoints::character::response::CharacterProfileVO,
     entity::{character_profiles, prelude::*},
-    error,
+    error::{self, Error},
 };
 
 pub struct CharacterProfileEndpoint;
@@ -28,18 +36,84 @@ impl CharacterProfileEndpoint {
 }
 
 #[get("/")]
-async fn get_characters(db: &State<DatabaseConnection>) {
+async fn get_characters(
+    auth: AuthGuard,
+    sqid: &State<Sqids>,
+    db: &State<DatabaseConnection>,
+) -> Result<CommonResponse<PagedData<CharacterProfileVO>>, Error> {
     let result = CharacterProfiles::find()
         .order_by_asc(character_profiles::Column::CreatedAt)
         .all(db.inner())
-        .await;
+        .await?
+        .into_iter()
+        .map(|it| CharacterProfileVO::from_model(it, sqid.inner()))
+        .collect::<Vec<_>>();
+
+    Ok(CommonResponse::default().set_data(PagedData::with_entire(result)))
 }
 
 #[delete("/<character>")]
-async fn delete_character(character: Sqid) {}
+async fn delete_character(
+    character: Sqid,
+
+    auth: AuthGuard,
+    sqid: &State<Sqids>,
+    db: &State<DatabaseConnection>,
+) -> Result<CommonResponse<()>, Error> {
+    let character = character.to_uuid(sqid)?;
+
+    CharacterProfiles::delete_character(character, db.inner()).await?;
+
+    Ok(CommonResponse::default())
+}
 
 #[get("/<character>")]
-async fn get_character(character: Sqid) {}
+async fn get_character(
+    character: Sqid,
+    sqid: &State<Sqids>,
+    auth: AuthGuard,
+
+    db: &State<DatabaseConnection>,
+) -> Result<CommonResponse<()>, Error> {
+    let id = character.to_uuid(sqid)?;
+
+    CharacterProfiles::get_character(id, db.inner()).await?;
+
+    Ok(CommonResponse::default())
+}
 
 #[post("/", data = "<profile>")]
-async fn create_character(profile: Json<Value>) {}
+async fn create_character(profile: Json<Value>, auth: AuthGuard, db: &State<DatabaseConnection>) {}
+
+mod response {
+    use std::collections::btree_set::SymmetricDifference;
+
+    use chrono::{DateTime, FixedOffset};
+    use serde::Serialize;
+    use serde_json::Value;
+    use sqids::Sqids;
+
+    use crate::{
+        common::requests::{Sqid, ToSqid},
+        entity::character_profiles,
+    };
+
+    #[derive(Debug, Serialize)]
+    pub struct CharacterProfileVO {
+        id: Sqid,
+        name: String,
+        profile: Value,
+        created_at: DateTime<FixedOffset>,
+    }
+
+    impl CharacterProfileVO {
+        pub fn from_model(model: character_profiles::Model, sqid: &Sqids) -> Self {
+            Self {
+                id: model.id.to_sqid_with(sqid),
+                name: model.name,
+                profile: model.settings,
+                created_at: model.created_at,
+            }
+        }
+    }
+}

@@ -5,7 +5,9 @@ use log::info;
 use rocket::{
     fairing::AdHoc,
     form::{Form, Strict},
-    post, routes, State,
+    post, routes,
+    serde::json::Json,
+    State,
 };
 use uuid::Uuid;
 
@@ -15,7 +17,7 @@ use crate::{
         tools::{ASRClient, CharacterProfileGenerator},
         CommonResponse,
     },
-    endpoints::tool::response::ASRMultipart,
+    endpoints::tool::response::{ASRMultipart, CharacterSettingRequest},
     entity::sea_orm_active_enums::ResourceType,
     error::Error,
 };
@@ -65,11 +67,15 @@ async fn create_asr(
 #[post("/tts")]
 async fn create_tts(auth: AuthGuard) {}
 
-#[post("/character/settings")]
+#[post("/character/settings", data = "<data>")]
 async fn gen_character_setting(
+    data: Json<CharacterSettingRequest>,
+
     auth: AuthGuard,
     character_tool: CharacterProfileGenerator,
 ) -> Result<CommonResponse<Vec<serde_json::Value>>, Error> {
+    // character_tool.generate_profile(input)
+
     todo!()
 }
 
@@ -83,9 +89,15 @@ async fn gen_character_prompt(
 
 mod response {
     use rocket::{fs::TempFile, FromForm};
+    use serde::Deserialize;
 
     #[derive(Debug, FromForm)]
     pub struct ASRMultipart<'r> {
         pub file: TempFile<'r>,
+    }
+
+    #[derive(Debug, Deserialize)]
+    pub struct CharacterSettingRequest {
+        pub text: String,
     }
 }

@@ -5,7 +5,7 @@ use chatara_tool::{
     profile::CharacterProfileTool,
 };
 use log::error;
-use openai_api_rs::v1::api::{OpenAIClient, OpenAIClientBuilder};
+use openai_api_rs::v1::api::OpenAIClientBuilder;
 use rocket::{
     async_trait,
     http::Status,

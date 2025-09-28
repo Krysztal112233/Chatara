@@ -1,6 +1,6 @@
 use chrono::Local;
 use rocket::async_trait;
-use sea_orm::{ActiveValue::*, ConnectionTrait, EntityTrait, prelude::*};
+use sea_orm::{prelude::*, ActiveValue::*, ConnectionTrait, EntityTrait};
 use serde_json::json;
 
 use crate::{
@@ -51,6 +51,14 @@ pub trait CharacterProfilesHelper {
             })
             .collect::<Vec<_>>();
         Ok(mapped)
+    }
+
+    async fn delete_character<C>(id: Uuid, db: &C) -> Result<(), Error>
+    where
+        C: ConnectionTrait,
+    {
+        CharacterProfiles::delete_by_id(id).exec(db).await?;
+        Ok(())
     }
 }
 
