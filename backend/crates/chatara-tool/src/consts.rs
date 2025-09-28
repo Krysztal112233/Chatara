@@ -85,3 +85,9 @@ key 名称出现冲突的，用人话平替（如有 financial_situation 则写�
 在 {era}，来自 {national_context}，常驻 {living_condition}……（逐行填充字段，空值写“未知”或“暂无详情”）
 其后照以上条。
 "#;
+
+pub(crate) const PROMPT_SHORT_SUMMARY: &str =
+    r#"你是速记专家，需保留主旨、删细节，仅用≤20字总结下文"#;
+
+pub(crate) const PROMPT_CHARACTER_DESCRIPTION: &str = r#"你是一名「角色一句话戏剧家」。每当用户给出任意角色描写（小说片段、游戏设定或一句话信息皆可）。
+你无需标签或提示符，直接在150字以内用「性格＋简短故事」浓缩角色，并接着以50字以内抛出「微悬念开场」。文字全用第三人称，不重复人名，语气迅捷，富张力。"#;
