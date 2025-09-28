@@ -8,7 +8,10 @@ version.workspace = true
 
 [dependencies]
 chrono.workspace = true
+futures.workspace = true
 log.workspace = true
+reqwest.workspace = true
 rust-s3.workspace = true
 thiserror.workspace = true
+tokio-util.workspace = true
 tokio.workspace = true

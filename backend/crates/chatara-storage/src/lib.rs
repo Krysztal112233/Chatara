@@ -1,7 +1,9 @@
 use std::ops::Deref;
 
 use chrono::Local;
+use futures::TryStreamExt;
 use log::{error, info};
+use reqwest::Client;
 use s3::creds::Credentials;
 use s3::Bucket;
 use s3::Region;
@@ -71,6 +73,38 @@ impl ChataraStorage {
         );
 
         Ok(response.uploaded_bytes())
+    }
+
+    /// 在后台上传文件，但该方法上传失败不会有任何提示
+    pub async fn background_upload(&self, url: String, path: String) -> Result<()> {
+        let client = Client::new();
+
+        let resp = client
+            .get(&url)
+            .send()
+            .await
+            .inspect_err(|e| error!("cannot request body stream for `{url}`: {e}"))?;
+
+        let bucket = self.bucket.clone();
+        tokio::spawn(async move {
+            let started = Local::now().timestamp_millis();
+            let resp = resp.bytes_stream().map_err(std::io::Error::other);
+            // 感谢伟大的 tokio-utils 我不知道怎么回事反正他跑起来了。
+            let mut stream = tokio_util::io::StreamReader::new(resp);
+
+            let r = bucket.put_object_stream(&mut stream, path).await;
+            match r {
+                Ok(response) => info!(
+                    "streamed url `{url}` with status {} sized {} bytes - cost {}ms",
+                    response.status_code(),
+                    response.uploaded_bytes(),
+                    Local::now().timestamp_millis() - started
+                ),
+                Err(e) => error!("failed streaming url `{url}` to S3: {e}"),
+            };
+        });
+
+        Ok(())
     }
 }
 
