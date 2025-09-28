@@ -42,9 +42,7 @@ async fn get_characters(
     sqid: &State<Sqids>,
     db: &State<DatabaseConnection>,
 ) -> Result<CommonResponse<PagedData<CharacterProfileVO>>, Error> {
-    let result = CharacterProfiles::find()
-        .order_by_asc(character_profiles::Column::CreatedAt)
-        .all(db.inner())
+    let result = CharacterProfiles::get_characters_of_user(auth.uid, db.inner())
         .await?
         .into_iter()
         .map(|it| CharacterProfileVO::from_model(it, sqid.inner()))
@@ -63,7 +61,7 @@ async fn delete_character(
 ) -> Result<CommonResponse<()>, Error> {
     let character = character.to_uuid(sqid)?;
 
-    CharacterProfiles::delete_character(character, db.inner()).await?;
+    CharacterProfiles::delete_character_of_user(character, auth.uid, db.inner()).await?;
 
     Ok(CommonResponse::default())
 }
@@ -71,14 +69,14 @@ async fn delete_character(
 #[get("/<character>")]
 async fn get_character(
     character: Sqid,
+
     sqid: &State<Sqids>,
     auth: AuthGuard,
-
     db: &State<DatabaseConnection>,
 ) -> Result<CommonResponse<CharacterProfileVO>, Error> {
     let id = character.to_uuid(sqid)?;
 
-    let character = CharacterProfiles::get_character(id, db.inner()).await?;
+    let character = CharacterProfiles::get_character_of_user(id, auth.uid, db.inner()).await?;
 
     match character {
         Some(character) => Ok(CommonResponse::default()
@@ -94,12 +92,23 @@ async fn get_character(
 async fn create_character(
     profile: Json<CreateCharacterProfileRequest>,
 
+    sqid: &State<Sqids>,
     auth: AuthGuard,
     db: &State<DatabaseConnection>,
-) {
+) -> Result<CommonResponse<CharacterProfileVO>, Error> {
+    let profile = profile.0;
 
+    let result = CharacterProfiles::create_character(
+        profile.name,
+        profile.settings,
+        profile.prompt,
+        profile.description,
+        auth.uid,
+        db.inner(),
+    )
+    .await?;
 
-
+    Ok(CommonResponse::default().set_data(CharacterProfileVO::from_model(result, sqid)))
 }
 
 mod response {
@@ -119,8 +128,8 @@ mod response {
     pub struct CharacterProfileVO {
         id: Sqid,
         name: String,
-        profile: Value,
         created_at: DateTime<FixedOffset>,
+        description: String,
     }
 
     impl CharacterProfileVO {
@@ -128,8 +137,8 @@ mod response {
             Self {
                 id: model.id.to_sqid_with(sqid),
                 name: model.name,
-                profile: model.settings,
                 created_at: model.created_at,
+                description: model.description,
             }
         }
     }
