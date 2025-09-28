@@ -1,9 +1,11 @@
 use std::collections::HashMap;
 
 use chrono::Local;
+use openai_api_rs::v1::chat_completion::{self, ChatCompletionMessage, MessageRole};
 use rocket::async_trait;
 use sea_orm::{
-    ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter,
+    ActiveModelTrait, ActiveValue::Set, ColumnTrait, Condition, ConnectionTrait, EntityTrait,
+    QueryFilter, QueryOrder, QuerySelect,
 };
 use uuid::Uuid;
 
@@ -12,6 +14,7 @@ use crate::{
     error::Error,
 };
 
+#[allow(unused)]
 #[async_trait]
 pub trait HistoriesHelper {
     async fn delete_histories<I, C>(id: I, db: &C) -> Result<(), Error>
@@ -75,6 +78,91 @@ pub trait HistoriesHelper {
 
         Ok(model)
     }
+
+    /// 提取作为记忆的历史记录
+    async fn get_memory<C>(of_history_index: Uuid, db: &C) -> Result<Vec<histories::Model>, Error>
+    where
+        C: ConnectionTrait,
+    {
+        // 最旧的一条是角色的 System Prompt
+        let oldest = Histories::find()
+            .filter(histories::Column::BelongHistoryIndex.eq(of_history_index))
+            .order_by_asc(histories::Column::CreatedAt)
+            .limit(1)
+            .one(db)
+            .await?;
+
+        let Some(oldest) = oldest else {
+            return Err(Error::Db(sea_orm::DbErr::RecordNotInserted));
+        };
+
+        // 从最新的往前数，并且忽略掉最旧的那一条
+        let memories = Histories::find()
+            .order_by_desc(histories::Column::CreatedAt)
+            .filter(
+                Condition::all()
+                    .add(histories::Column::Id.eq(oldest.id).not())
+                    .add(histories::Column::BelongHistoryIndex.eq(of_history_index)),
+            )
+            .limit(20)
+            .all(db)
+            .await?;
+
+        let mut head = vec![oldest];
+        head.extend(memories);
+        Ok(head)
+    }
 }
 
 impl HistoriesHelper for Histories {}
+
+pub trait IntoChatCompletion {
+    fn into_chat_completion(self) -> ChatCompletionMessage;
+}
+
+impl IntoChatCompletion for histories::Model {
+    fn into_chat_completion(self) -> ChatCompletionMessage {
+        let role = match self.chat_role {
+            ChatRole::System => MessageRole::system,
+            ChatRole::User => MessageRole::user,
+            ChatRole::Character => MessageRole::assistant,
+        };
+
+        ChatCompletionMessage {
+            role,
+            content: chat_completion::Content::Text(self.content),
+            name: None,
+            tool_calls: None,
+            tool_call_id: None,
+        }
+    }
+}
+
+pub trait FromChatCompletion {
+    fn from_chat_completion(chat: ChatCompletionMessage, history_index: Uuid) -> Self;
+}
+
+impl FromChatCompletion for histories::Model {
+    fn from_chat_completion(chat: ChatCompletionMessage, history_index: Uuid) -> Self {
+        let chat_role = match chat.role {
+            MessageRole::user => ChatRole::User,
+            MessageRole::system => ChatRole::System,
+            MessageRole::assistant => ChatRole::Character,
+            _ => ChatRole::Character,
+        };
+
+        let content = match chat.content {
+            chat_completion::Content::Text(t) => t,
+            chat_completion::Content::ImageUrl(_) => "".into(),
+        };
+
+        histories::Model {
+            id: Uuid::now_v7(),
+            created_at: Local::now().into(),
+            chat_role,
+            belong_history_index: history_index,
+            content,
+            with_resource: None,
+        }
+    }
+}
