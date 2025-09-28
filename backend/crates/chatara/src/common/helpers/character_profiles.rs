@@ -31,12 +31,14 @@ pub trait CharacterProfilesHelper {
         prompt: T,
         description: T,
         user: T,
+        avatar: Option<T>,
         db: &C,
     ) -> Result<character_profiles::Model, Error>
     where
         T: Into<String> + Send,
         C: ConnectionTrait,
     {
+        let avatar = avatar.map(Into::into);
         Ok(character_profiles::ActiveModel {
             id: Set(Uuid::now_v7()),
             created_at: Set(Local::now().into()),
@@ -45,6 +47,7 @@ pub trait CharacterProfilesHelper {
             prompt: Set(prompt.into()),
             description: Set(description.into()),
             belong_user: Set(user.into()),
+            avatar: Set(avatar),
         }
         .insert(db)
         .await?)

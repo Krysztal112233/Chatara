@@ -1,21 +1,15 @@
-use jsonwebtoken::jwk::KeyAlgorithm;
-use rocket::{
-    delete, fairing::AdHoc, futures::FutureExt, get, http::Status, post, routes, serde::json::Json,
-    State,
-};
-use sea_orm::{DatabaseConnection, EntityTrait, QueryOrder};
-use serde_json::{json, Value};
+use rocket::{delete, fairing::AdHoc, get, http::Status, post, routes, serde::json::Json, State};
+use sea_orm::DatabaseConnection;
 use sqids::Sqids;
-use uuid::Uuid;
 
 use crate::{
     common::{
         guards::auth::AuthGuard, helpers::character_profiles::CharacterProfilesHelper,
-        requests::Sqid, tools::GenMetaClient, CommonResponse, PagedData,
+        requests::Sqid, CommonResponse, PagedData,
     },
     endpoints::character::response::{CharacterProfileVO, CreateCharacterProfileRequest},
-    entity::{character_profiles, prelude::*},
-    error::{self, Error},
+    entity::prelude::*,
+    error::Error,
 };
 
 pub struct CharacterProfileEndpoint;
@@ -104,6 +98,7 @@ async fn create_character(
         profile.prompt,
         profile.description,
         auth.uid,
+        profile.avatar,
         db.inner(),
     )
     .await?;
@@ -112,7 +107,6 @@ async fn create_character(
 }
 
 mod response {
-    use std::collections::btree_set::SymmetricDifference;
 
     use chrono::{DateTime, FixedOffset};
     use serde::{Deserialize, Serialize};
@@ -149,5 +143,6 @@ mod response {
         pub settings: Value,
         pub prompt: String,
         pub description: String,
+        pub avatar: Option<String>,
     }
 }

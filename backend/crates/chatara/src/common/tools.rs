@@ -95,6 +95,7 @@ impl<'r> FromRequest<'r> for TTSClient {
     }
 }
 
+#[allow(unused)]
 #[derive(Debug)]
 pub struct GenMetaClient(GenMetaTool);
 

@@ -1,4 +1,3 @@
-#[allow(unused)]
 pub mod character;
 #[allow(unused)]
 pub mod history;
