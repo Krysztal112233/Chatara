@@ -124,6 +124,7 @@ mod response {
         name: String,
         created_at: DateTime<FixedOffset>,
         description: String,
+        avatar: Option<String>,
     }
 
     impl CharacterProfileVO {
@@ -133,6 +134,7 @@ mod response {
                 name: model.name,
                 created_at: model.created_at,
                 description: model.description,
+                avatar: model.avatar,
             }
         }
     }
