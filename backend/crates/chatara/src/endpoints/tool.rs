@@ -21,7 +21,15 @@ pub struct AgentEndpoint;
 impl AgentEndpoint {
     pub fn stage() -> AdHoc {
         AdHoc::on_ignite("Tool Endpoint", |r| async move {
-            r.mount("/tool", routes![create_asr, create_tts, create_character])
+            r.mount(
+                "/tool",
+                routes![
+                    create_asr,
+                    create_tts,
+                    gen_character_setting,
+                    gen_character_prompt
+                ],
+            )
         })
     }
 }
@@ -51,10 +59,19 @@ async fn create_asr(
 }
 
 #[post("/tts")]
-async fn create_tts() {}
+async fn create_tts(auth: AuthGuard) {}
 
-#[post("/character")]
-async fn create_character() {}
+#[post("/character/settings")]
+async fn gen_character_setting(
+    auth: AuthGuard,
+) -> Result<CommonResponse<Vec<serde_json::Value>>, Error> {
+    todo!()
+}
+
+#[post("/character/prompt")]
+async fn gen_character_prompt(auth: AuthGuard) -> Result<CommonResponse<String>, Error> {
+    todo!()
+}
 
 mod response {
     use rocket::{fs::TempFile, FromForm};

@@ -13,23 +13,16 @@ use crate::{
 
 #[async_trait]
 pub trait HistoryIndexesHelper {
-    async fn delete_index_of_user<T, C>(index: Uuid, user: T, db: &C) -> Result<(), Error>
+    async fn delete_session_of_user<T, C>(index: Uuid, user: T, db: &C) -> Result<(), Error>
     where
         T: Into<String> + Send,
         C: ConnectionTrait,
     {
-        HistoryIndexes::delete_many()
-            .filter(
-                Condition::all()
-                    .add(history_indexes::Column::Id.eq(index))
-                    .add(history_indexes::Column::BelongUser.eq(user.into())),
-            )
-            .exec(db)
-            .await?;
+        Self::delete_sessions_of_user(vec![index], user, db).await?;
         Ok(())
     }
 
-    async fn delete_history_of_user<I, T, C>(ids: I, user: T, db: &C) -> Result<(), Error>
+    async fn delete_sessions_of_user<I, T, C>(ids: I, user: T, db: &C) -> Result<(), Error>
     where
         I: IntoIterator<Item = Uuid> + Send,
         T: Into<String> + Send,
@@ -47,7 +40,7 @@ pub trait HistoryIndexesHelper {
         Ok(())
     }
 
-    async fn create_history<T, C>(
+    async fn create_session<T, C>(
         user: T,
         character: Uuid,
         db: &C,
@@ -67,7 +60,7 @@ pub trait HistoryIndexesHelper {
         .await?)
     }
 
-    async fn get_history_indexes_of_user<T, C>(
+    async fn get_sessions_of_user<T, C>(
         user: T,
         db: &C,
     ) -> Result<Vec<history_indexes::Model>, Error>
@@ -81,7 +74,7 @@ pub trait HistoryIndexesHelper {
             .await?)
     }
 
-    async fn get_history_index_of_user<T, C>(
+    async fn get_session_of_user<T, C>(
         user: T,
         id: Uuid,
         db: &C,
