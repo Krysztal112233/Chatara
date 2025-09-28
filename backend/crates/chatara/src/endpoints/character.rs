@@ -1,16 +1,17 @@
 use jsonwebtoken::jwk::KeyAlgorithm;
 use rocket::{
-    delete, fairing::AdHoc, futures::FutureExt, get, post, routes, serde::json::Json, State,
+    State, delete, fairing::AdHoc, futures::FutureExt, get, http::Status, post, routes,
+    serde::json::Json,
 };
 use sea_orm::{DatabaseConnection, EntityTrait, QueryOrder};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use sqids::Sqids;
 use uuid::Uuid;
 
 use crate::{
     common::{
-        guards::auth::AuthGuard, helpers::character_profiles::CharacterProfilesHelper,
-        requests::Sqid, CommonResponse, PagedData,
+        CommonResponse, PagedData, guards::auth::AuthGuard,
+        helpers::character_profiles::CharacterProfilesHelper, requests::Sqid,
     },
     endpoints::character::response::CharacterProfileVO,
     entity::{character_profiles, prelude::*},
@@ -74,12 +75,17 @@ async fn get_character(
     auth: AuthGuard,
 
     db: &State<DatabaseConnection>,
-) -> Result<CommonResponse<()>, Error> {
+) -> Result<CommonResponse<CharacterProfileVO>, Error> {
     let id = character.to_uuid(sqid)?;
 
-    CharacterProfiles::get_character(id, db.inner()).await?;
+    let character = CharacterProfiles::get_character(id, db.inner()).await?;
 
-    Ok(CommonResponse::default())
+    match character {
+        Some(character) => Ok(CommonResponse::default().set_data(CharacterProfileVO::from_model(character, sqid.inner()))),
+        None => {
+            Ok(CommonResponse::with_msg(Status::NotFound.code, "Character not found.".to_owned()))
+        }
+    }
 }
 
 #[post("/", data = "<profile>")]
