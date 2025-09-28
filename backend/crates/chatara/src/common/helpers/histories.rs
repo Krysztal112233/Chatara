@@ -84,33 +84,10 @@ pub trait HistoriesHelper {
     where
         C: ConnectionTrait,
     {
-        // 最旧的一条是角色的 System Prompt
-        let oldest = Histories::find()
+        Ok(Histories::find()
             .filter(histories::Column::BelongHistoryIndex.eq(of_history_index))
-            .order_by_asc(histories::Column::CreatedAt)
-            .limit(1)
-            .one(db)
-            .await?;
-
-        let Some(oldest) = oldest else {
-            return Err(Error::Db(sea_orm::DbErr::RecordNotInserted));
-        };
-
-        // 从最新的往前数，并且忽略掉最旧的那一条
-        let memories = Histories::find()
-            .order_by_desc(histories::Column::CreatedAt)
-            .filter(
-                Condition::all()
-                    .add(histories::Column::Id.eq(oldest.id).not())
-                    .add(histories::Column::BelongHistoryIndex.eq(of_history_index)),
-            )
-            .limit(20)
             .all(db)
-            .await?;
-
-        let mut head = vec![oldest];
-        head.extend(memories);
-        Ok(head)
+            .await?)
     }
 }
 
