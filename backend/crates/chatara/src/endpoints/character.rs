@@ -1,19 +1,19 @@
 use jsonwebtoken::jwk::KeyAlgorithm;
 use rocket::{
-    State, delete, fairing::AdHoc, futures::FutureExt, get, http::Status, post, routes,
-    serde::json::Json,
+    delete, fairing::AdHoc, futures::FutureExt, get, http::Status, post, routes, serde::json::Json,
+    State,
 };
 use sea_orm::{DatabaseConnection, EntityTrait, QueryOrder};
-use serde_json::{Value, json};
+use serde_json::{json, Value};
 use sqids::Sqids;
 use uuid::Uuid;
 
 use crate::{
     common::{
-        CommonResponse, PagedData, guards::auth::AuthGuard,
-        helpers::character_profiles::CharacterProfilesHelper, requests::Sqid,
+        guards::auth::AuthGuard, helpers::character_profiles::CharacterProfilesHelper,
+        requests::Sqid, CommonResponse, PagedData,
     },
-    endpoints::character::response::CharacterProfileVO,
+    endpoints::character::response::{CharacterProfileVO, CreateCharacterProfileRequest},
     entity::{character_profiles, prelude::*},
     error::{self, Error},
 };
@@ -81,21 +81,28 @@ async fn get_character(
     let character = CharacterProfiles::get_character(id, db.inner()).await?;
 
     match character {
-        Some(character) => Ok(CommonResponse::default().set_data(CharacterProfileVO::from_model(character, sqid.inner()))),
-        None => {
-            Ok(CommonResponse::with_msg(Status::NotFound.code, "Character not found.".to_owned()))
-        }
+        Some(character) => Ok(CommonResponse::default()
+            .set_data(CharacterProfileVO::from_model(character, sqid.inner()))),
+        None => Ok(CommonResponse::with_msg(
+            Status::NotFound.code,
+            "Character not found.".to_owned(),
+        )),
     }
 }
 
 #[post("/", data = "<profile>")]
-async fn create_character(profile: Json<Value>, auth: AuthGuard, db: &State<DatabaseConnection>) {}
+async fn create_character(
+    profile: Json<CreateCharacterProfileRequest>,
+    auth: AuthGuard,
+    db: &State<DatabaseConnection>,
+) {
+}
 
 mod response {
     use std::collections::btree_set::SymmetricDifference;
 
     use chrono::{DateTime, FixedOffset};
-    use serde::Serialize;
+    use serde::{Deserialize, Serialize};
     use serde_json::Value;
     use sqids::Sqids;
 
@@ -121,5 +128,13 @@ mod response {
                 created_at: model.created_at,
             }
         }
+    }
+
+    #[derive(Debug, Deserialize)]
+    pub struct CreateCharacterProfileRequest {
+        pub name: String,
+        pub settings: Value,
+        pub prompt: String,
+        pub description: String,
     }
 }
