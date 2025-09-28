@@ -277,11 +277,18 @@ export const handlers = [
     const { historyId } = params
     const body = (await request.json()) as { content: string }
 
-    const newMessage = {
+    const userMessage = {
       id: `msg_${Date.now().toString()}`,
       role: 'User' as const,
       content: body.content,
       created_at: new Date().toISOString(),
+    }
+
+    const characterMessage = {
+      id: `msg_${(Date.now() + 1).toString()}`,
+      role: 'Character' as const,
+      content: `收到你的消息："${body.content}"，这是 AI 的回复。`,
+      created_at: new Date(Date.now() + 1000).toISOString(),
     }
 
     // 添加到对应的历史记录中
@@ -289,12 +296,13 @@ export const handlers = [
     if (!(key in mockHistoryMessages)) {
       mockHistoryMessages[key] = []
     }
-    mockHistoryMessages[key].push(newMessage)
+    mockHistoryMessages[key].push(userMessage)
+    mockHistoryMessages[key].push(characterMessage)
 
     return HttpResponse.json({
       code: 200,
       msg: 'Created',
-      payload: newMessage,
+      payload: userMessage,
     })
   }),
 
@@ -323,6 +331,58 @@ export const handlers = [
     return HttpResponse.json({
       code: 200,
       msg: 'Deleted',
+    })
+  }),
+
+  // ==================== Tools API ====================
+
+  // POST /tool/asr - 语音识别
+  http.post('*/tool/asr', async ({ request }) => {
+    const formData = await request.formData()
+    const file = formData.get('file')
+
+    if (!file) {
+      return HttpResponse.json(
+        {
+          code: 400,
+          msg: 'Missing file parameter',
+        },
+        { status: 400 }
+      )
+    }
+
+    return HttpResponse.json({
+      code: 200,
+      msg: '200 OK',
+      payload: '这是一段语音识别生成的文本。',
+    })
+  }),
+
+  // POST /tool/tts - 语音合成
+  http.post('*/tool/tts', async ({ request }) => {
+    const body = (await request.json()) as {
+      text: string
+      voice?: string
+      language?: string
+    }
+
+    if (!body.text) {
+      return HttpResponse.json(
+        {
+          code: 400,
+          msg: 'Missing text parameter',
+        },
+        { status: 400 }
+      )
+    }
+
+    return HttpResponse.json({
+      code: 200,
+      msg: '200 OK',
+      payload: {
+        id: `tts_${Date.now().toString()}`,
+        url: 'https://www2.cs.uic.edu/~i101/SoundFiles/BabyElephantWalk60.wav',
+      },
     })
   }),
 ]

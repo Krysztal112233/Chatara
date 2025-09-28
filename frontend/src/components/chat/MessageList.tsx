@@ -6,6 +6,7 @@ interface Message {
   content: string
   isUser: boolean
   time: string
+  isPending?: boolean
 }
 
 interface MessageListProps {
@@ -57,7 +58,7 @@ export function MessageList({ messages, characterAvatar }: MessageListProps) {
                     message.isUser
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-content2'
-                  }`}
+                  } ${message.isPending ? 'opacity-50' : ''}`}
                 >
                   <CardBody className='p-3'>
                     <p className='text-sm whitespace-pre-wrap'>

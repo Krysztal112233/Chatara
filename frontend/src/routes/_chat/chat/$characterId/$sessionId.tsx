@@ -1,6 +1,7 @@
 import { createFileRoute, notFound, useNavigate } from '@tanstack/react-router'
 import { Head } from '@unhead/react'
 import { Spinner } from '@heroui/react'
+import { useState, useRef } from 'react'
 import { MessageList } from '@/components/chat/MessageList'
 import { ChatInput } from '@/components/chat/ChatInput'
 import {
@@ -9,6 +10,7 @@ import {
   useHistoryMessages,
 } from '@/lib/api/histories'
 import { useCharacter } from '@/lib/api/characters'
+import { useAsr, useTts } from '@/lib/api/tools'
 
 export const Route = createFileRoute('/_chat/chat/$characterId/$sessionId')({
   component: ChatSession,
@@ -21,8 +23,31 @@ function ChatSession() {
     messages: apiMessages,
     isLoading,
     error,
+    mutate,
   } = useHistoryMessages(sessionId === 'newChat' ? '' : sessionId)
   const { character } = useCharacter(characterId)
+  const [pendingMessage, setPendingMessage] = useState<string | null>(null)
+  const { asr } = useAsr()
+  const { tts } = useTts()
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  const playTts = (text: string) => {
+    tts({ text })
+      .then((result) => {
+        if (result?.url) {
+          if (!audioRef.current) {
+            audioRef.current = new Audio()
+          }
+          audioRef.current.src = result.url
+          audioRef.current.play().catch((error: unknown) => {
+            console.error('Audio playback failed:', error)
+          })
+        }
+      })
+      .catch((error: unknown) => {
+        console.error('TTS failed:', error)
+      })
+  }
 
   // Transform API messages to MessageList format
   const messages = apiMessages.map((msg, index) => ({
@@ -33,7 +58,22 @@ function ChatSession() {
       hour: '2-digit',
       minute: '2-digit',
     }),
+    isPending: false,
   }))
+
+  // Add pending message if exists
+  if (pendingMessage) {
+    messages.push({
+      id: messages.length + 1,
+      content: pendingMessage,
+      isUser: true,
+      time: new Date().toLocaleTimeString('zh-CN', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      isPending: true,
+    })
+  }
 
   const getSessionTitle = () => {
     if (sessionId === 'newChat') {
@@ -54,6 +94,8 @@ function ChatSession() {
   const { trigger: createHistoryMessage } = useCreateHistoryMessage()
 
   const onChatInputSend = (message: string) => {
+    setPendingMessage(message)
+
     if (sessionId === 'newChat') {
       createHistoryIndex({ profileId: characterId })
         .then((res) => {
@@ -64,21 +106,70 @@ function ChatSession() {
                 characterId,
                 sessionId: res.payload.id,
               },
-            }).catch(console.error)
+            }).catch((error: unknown) => {
+              console.error(error)
+            })
 
             createHistoryMessage({
               historyIndexId: res.payload.id,
               content: message,
-            }).catch(console.error)
+            })
+              .then(() => {
+                setPendingMessage(null)
+                mutate().then((data) => {
+                  const updatedMessages = data?.payload?.content ?? []
+                  const lastMessage = updatedMessages[updatedMessages.length - 1]
+                  if (lastMessage && lastMessage.role === 'Character') {
+                    playTts(lastMessage.content)
+                  }
+                }).catch((error: unknown) => {
+                  console.error('Mutate failed:', error)
+                })
+              })
+              .catch((error: unknown) => {
+                console.error(error)
+                setPendingMessage(null)
+              })
           }
         })
-        .catch(console.error)
+        .catch((error: unknown) => {
+          console.error(error)
+          setPendingMessage(null)
+        })
     } else {
       createHistoryMessage({
         historyIndexId: sessionId,
         content: message,
-      }).catch(console.error)
+      })
+        .then(() => {
+          setPendingMessage(null)
+          mutate().then((data) => {
+            const updatedMessages = data?.payload?.content ?? []
+            const lastMessage = updatedMessages[updatedMessages.length - 1]
+            if (lastMessage && lastMessage.role === 'Character') {
+              playTts(lastMessage.content)
+            }
+          }).catch((error: unknown) => {
+            console.error('Mutate failed:', error)
+          })
+        })
+        .catch((error: unknown) => {
+          console.error(error)
+          setPendingMessage(null)
+        })
     }
+  }
+
+  const onAudioRecord = (audioBlob: Blob) => {
+    asr(audioBlob)
+      .then((text) => {
+        if (text) {
+          onChatInputSend(text)
+        }
+      })
+      .catch((error: unknown) => {
+        console.error('ASR failed:', error)
+      })
   }
 
   if (isLoading) {
@@ -108,7 +199,7 @@ function ChatSession() {
           messages={messages}
           characterAvatar={character?.avatar}
         />
-        <ChatInput onSend={onChatInputSend} />
+        <ChatInput onSend={onChatInputSend} onAudioRecord={onAudioRecord} />
       </div>
     </>
   )
