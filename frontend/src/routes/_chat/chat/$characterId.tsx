@@ -35,14 +35,14 @@ function CharacterLayout() {
     }).catch(console.error)
   }
 
-    // 显示加载状态
-    if (isLoading) {
-      return (
-        <div className='flex-1 flex items-center justify-center'>
-          <Spinner size='lg' />
-        </div>
-      )
-    }
+  // 显示加载状态
+  if (isLoading) {
+    return (
+      <div className='flex-1 flex items-center justify-center'>
+        <Spinner size='lg' />
+      </div>
+    )
+  }
 
   // 显示错误状态
   if (error || !character) {
@@ -62,11 +62,8 @@ function CharacterLayout() {
     <div className='flex-1 flex flex-col h-full'>
       <ChatHeader
         title={character.name}
-        description={character.settings.description || ''}
-        avatar={
-          character.settings.avatar ||
-          `https://i.pravatar.cc/150?u=${character.name}`
-        }
+        description={character.description || ''}
+        avatar={character.avatar || '🤖'}
         onHistoryClick={handleHistoryClick}
         onBackClick={() => {
           navigate({ to: '/chat' }).catch(console.error)

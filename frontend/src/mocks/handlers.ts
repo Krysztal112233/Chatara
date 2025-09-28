@@ -5,7 +5,7 @@ const mockCharacters = [
   {
     id: 'gYcxwe',
     name: '哈利波特',
-    settings: {
+    profile: {
       description: '霍格沃茨魔法学校学生，拥有格兰芬多的勇气',
       avatar: '🧙‍♂️',
     },
@@ -14,7 +14,7 @@ const mockCharacters = [
   {
     id: 'nR8kPm',
     name: '苏格拉底',
-    settings: {
+    profile: {
       description: '古希腊哲学家，以苏格拉底式问答法闻名',
       avatar: '🏛️',
     },
@@ -23,7 +23,7 @@ const mockCharacters = [
   {
     id: 'vL4qBz',
     name: '爱因斯坦',
-    settings: {
+    profile: {
       description: '理论物理学家，相对论的创立者',
       avatar: '🧬',
     },
@@ -32,7 +32,7 @@ const mockCharacters = [
   {
     id: 'sJ9tXw',
     name: '莎士比亚',
-    settings: {
+    profile: {
       description: '英国文学史上最杰出的戏剧家和诗人',
       avatar: '🎭',
     },
@@ -59,7 +59,7 @@ const mockHistoryIndexes = [
 ]
 
 const mockHistoryMessages = {
-  'mK8dLr': [
+  mK8dLr: [
     {
       id: 'msg1',
       role: 'User' as const,
@@ -73,7 +73,7 @@ const mockHistoryMessages = {
       created_at: '2024-01-20T16:31:00Z',
     },
   ],
-  'pQ3nXs': [
+  pQ3nXs: [
     {
       id: 'msg3',
       role: 'User' as const,
@@ -87,7 +87,7 @@ const mockHistoryMessages = {
       created_at: '2024-01-19T12:16:00Z',
     },
   ],
-  'xF2vGj': [
+  xF2vGj: [
     {
       id: 'msg5',
       role: 'User' as const,
@@ -105,7 +105,7 @@ const mockHistoryMessages = {
 
 export const handlers = [
   // ==================== Auth API ====================
-  
+
   // GET / - 认证测试
   http.get('*/auth/test', () => {
     return HttpResponse.json({
@@ -118,26 +118,33 @@ export const handlers = [
   }),
 
   // ==================== Characters API ====================
-  
+
   // GET /characters - 获取所有角色
   http.get('*/characters', () => {
     return HttpResponse.json({
       code: 200,
       msg: 'OK',
-      payload: mockCharacters,
+      payload: {
+        size: mockCharacters.length,
+        next: false,
+        content: mockCharacters,
+      },
     })
   }),
 
   // GET /characters/:id - 获取单个角色
   http.get('*/characters/:characterId', ({ params }) => {
     const { characterId } = params
-    const character = mockCharacters.find(char => char.id === characterId)
-    
+    const character = mockCharacters.find((char) => char.id === characterId)
+
     if (!character) {
-      return HttpResponse.json({
-        code: 404,
-        msg: 'Character not found',
-      }, { status: 404 })
+      return HttpResponse.json(
+        {
+          code: 404,
+          msg: 'Character not found',
+        },
+        { status: 404 }
+      )
     }
 
     return HttpResponse.json({
@@ -149,38 +156,49 @@ export const handlers = [
 
   // POST /characters - 创建角色
   http.post('*/characters', async ({ request }) => {
-    const body = await request.json() as { name: string; settings: Record<string, unknown> }
-    
+    const body = (await request.json()) as {
+      name: string
+      description?: string
+      avatar?: string
+    }
+
     const newCharacter = {
       id: `new_${Date.now().toString()}`,
       name: body.name,
-      settings: {
-        description: (body.settings.description as string) || '',
-        avatar: (body.settings.avatar as string) || `https://i.pravatar.cc/150?u=${body.name}`,
-        ...body.settings,
+      profile: {
+        description: (body.description as string) || '',
+        avatar:
+          (body.avatar as string) || '🤖',
+        ...body,
       },
       created_at: new Date().toISOString(),
     }
 
     mockCharacters.push(newCharacter)
 
-    return HttpResponse.json({
-      code: 201,
-      msg: 'Created',
-      payload: newCharacter,
-    }, { status: 201 })
+    return HttpResponse.json(
+      {
+        code: 201,
+        msg: 'Created',
+        payload: newCharacter,
+      },
+      { status: 201 }
+    )
   }),
 
   // DELETE /characters/:id - 删除角色
   http.delete('*/characters/:characterId', ({ params }) => {
     const { characterId } = params
-    const index = mockCharacters.findIndex(char => char.id === characterId)
-    
+    const index = mockCharacters.findIndex((char) => char.id === characterId)
+
     if (index === -1) {
-      return HttpResponse.json({
-        code: 404,
-        msg: 'Character not found',
-      }, { status: 404 })
+      return HttpResponse.json(
+        {
+          code: 404,
+          msg: 'Character not found',
+        },
+        { status: 404 }
+      )
     }
 
     mockCharacters.splice(index, 1)
@@ -192,7 +210,7 @@ export const handlers = [
   }),
 
   // ==================== Histories API ====================
-  
+
   // GET /histories - 获取历史索引
   http.get('*/histories', () => {
     // 这里简化处理，实际应该根据用户ID过滤
@@ -211,12 +229,15 @@ export const handlers = [
   http.post('*/histories', ({ request }) => {
     const url = new URL(request.url)
     const profileId = url.searchParams.get('profile')
-    
+
     if (!profileId) {
-      return HttpResponse.json({
-        code: 400,
-        msg: 'Missing profile parameter',
-      }, { status: 400 })
+      return HttpResponse.json(
+        {
+          code: 400,
+          msg: 'Missing profile parameter',
+        },
+        { status: 400 }
+      )
     }
 
     const newHistoryIndex = {
@@ -254,8 +275,8 @@ export const handlers = [
   // POST /histories/:id - 创建历史消息
   http.post('*/histories/:historyId', async ({ params, request }) => {
     const { historyId } = params
-    const body = await request.json() as { content: string }
-    
+    const body = (await request.json()) as { content: string }
+
     const newMessage = {
       id: `msg_${Date.now().toString()}`,
       role: 'User' as const,
@@ -269,7 +290,7 @@ export const handlers = [
       mockHistoryMessages[key] = []
     }
     mockHistoryMessages[key].push(newMessage)
-    
+
     return HttpResponse.json({
       code: 200,
       msg: 'Created',
@@ -280,13 +301,16 @@ export const handlers = [
   // DELETE /histories/:id - 删除历史记录
   http.delete('*/histories/:historyId', ({ params }) => {
     const { historyId } = params
-    const index = mockHistoryIndexes.findIndex(hist => hist.id === historyId)
-    
+    const index = mockHistoryIndexes.findIndex((hist) => hist.id === historyId)
+
     if (index === -1) {
-      return HttpResponse.json({
-        code: 404,
-        msg: 'History not found',
-      }, { status: 404 })
+      return HttpResponse.json(
+        {
+          code: 404,
+          msg: 'History not found',
+        },
+        { status: 404 }
+      )
     }
 
     mockHistoryIndexes.splice(index, 1)

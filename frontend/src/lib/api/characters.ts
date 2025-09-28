@@ -1,15 +1,13 @@
 import useSWR from 'swr'
 import { useFetcher } from '../fetcher'
-import type { CommonResponse } from './base'
+import type { CommonResponse, PagedData } from './base'
 
 export interface CharacterProfile {
   id: string
   name: string
-  settings: {
-    description?: string
-    avatar?: string
-    [key: string]: unknown
-  }
+  prompt: string
+  description?: string
+  avatar?: string
   created_at: string
 }
 
@@ -18,7 +16,7 @@ interface CreateCharacterRequest {
   settings: Record<string, unknown>
 }
 
-type GetCharactersResponse = CommonResponse<CharacterProfile[]>
+type GetCharactersResponse = CommonResponse<PagedData<CharacterProfile>>
 type GetCharacterResponse = CommonResponse<CharacterProfile>
 type CreateCharacterResponse = CommonResponse<CharacterProfile>
 
@@ -33,7 +31,9 @@ export function useCharacters() {
   )
 
   return {
-    characters: data?.payload ?? [],
+    characters: data?.payload?.content ?? [],
+    size: data?.payload?.size ?? 0,
+    hasNext: data?.payload?.next ?? false,
     error,
     isLoading,
     mutate,

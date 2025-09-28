@@ -1,12 +1,7 @@
 import useSWR from 'swr'
+import useSWRMutation from 'swr/mutation'
 import { useFetcher } from '../fetcher'
-import type { CommonResponse } from './base'
-
-interface PagedData<T = unknown> {
-  size: number
-  next: boolean
-  content: T[]
-}
+import type { CommonResponse, PagedData } from './base'
 
 export interface HistoryIndex {
   id: string
@@ -55,7 +50,9 @@ export function useHistoryIndexesForCharacter(characterId?: string) {
   if (!characterId) {
     return []
   }
-  return historyIndexes.historyIndexes.filter((index) => index.character === characterId)
+  return historyIndexes.historyIndexes.filter(
+    (index) => index.character === characterId
+  )
 }
 
 // Legacy alias for backward compatibility
@@ -64,11 +61,22 @@ export const useHistories = useHistoryIndexes
 export function useCreateHistoryIndex() {
   const fetcher = useFetcher()
 
-  const createHistoryIndex = async (profileId: string) => {
-    return fetcher.post(`/histories?profile=${profileId}`) as Promise<CreateHistoryIndexResponse>
+  const createHistoryIndex = async (
+    _: string,
+    { arg }: { arg: { profileId: string } }
+  ) => {
+    return fetcher.post(
+      `/histories?profile=${arg.profileId}`,
+      {}
+    ) as Promise<CreateHistoryIndexResponse>
   }
 
-  return { createHistoryIndex }
+  const { trigger } = useSWRMutation(
+    '/histories?profile=${profileId}',
+    createHistoryIndex, {}
+  )
+
+  return { trigger }
 }
 
 export function useHistoryMessages(historyIndexId: string) {
@@ -78,7 +86,8 @@ export function useHistoryMessages(historyIndexId: string) {
     Error
   >(
     historyIndexId ? `/histories/${historyIndexId}` : null,
-    async (url: string) => fetcher.get(url) as Promise<GetHistoryMessagesResponse>
+    async (url: string) =>
+      fetcher.get(url) as Promise<GetHistoryMessagesResponse>
   )
 
   return {
@@ -94,18 +103,31 @@ export function useHistoryMessages(historyIndexId: string) {
 export function useCreateHistoryMessage() {
   const fetcher = useFetcher()
 
-  const createHistoryMessage = async (historyIndexId: string, request: CreateHistoryRequest) => {
-    return fetcher.post(`/histories/${historyIndexId}`, request) as Promise<CreateHistoryMessageResponse>
+  const createHistoryMessage = async (
+    _: string,
+    { arg }: { arg: { historyIndexId: string; content: string } }
+  ) => {
+    return fetcher.post(
+      `/histories/${arg.historyIndexId}`,
+      { content: arg.content }
+    ) as Promise<CreateHistoryMessageResponse>
   }
 
-  return { createHistoryMessage }
+  const { trigger } = useSWRMutation(
+    '/histories',
+    createHistoryMessage
+  )
+
+  return { trigger }
 }
 
 export function useDeleteHistory() {
   const fetcher = useFetcher()
 
   const deleteHistory = async (historyIndexId: string) => {
-    return fetcher.delete(`/histories/${historyIndexId}`) as Promise<CommonResponse>
+    return fetcher.delete(
+      `/histories/${historyIndexId}`
+    ) as Promise<CommonResponse>
   }
 
   return { deleteHistory }
