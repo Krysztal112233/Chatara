@@ -10,7 +10,11 @@ use rocket::{
 use uuid::Uuid;
 
 use crate::{
-    common::{guards::auth::AuthGuard, tools::ASRClient, CommonResponse},
+    common::{
+        guards::auth::AuthGuard,
+        tools::{ASRClient, CharacterProfileGenerator},
+        CommonResponse,
+    },
     endpoints::tool::response::ASRMultipart,
     entity::sea_orm_active_enums::ResourceType,
     error::Error,
@@ -64,12 +68,16 @@ async fn create_tts(auth: AuthGuard) {}
 #[post("/character/settings")]
 async fn gen_character_setting(
     auth: AuthGuard,
+    character_tool: CharacterProfileGenerator,
 ) -> Result<CommonResponse<Vec<serde_json::Value>>, Error> {
     todo!()
 }
 
 #[post("/character/prompt")]
-async fn gen_character_prompt(auth: AuthGuard) -> Result<CommonResponse<String>, Error> {
+async fn gen_character_prompt(
+    auth: AuthGuard,
+    character_tool: CharacterProfileGenerator,
+) -> Result<CommonResponse<String>, Error> {
     todo!()
 }
 
