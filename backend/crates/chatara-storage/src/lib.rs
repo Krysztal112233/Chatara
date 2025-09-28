@@ -2,9 +2,9 @@ use std::ops::Deref;
 
 use chrono::Local;
 use log::{error, info};
+use s3::creds::Credentials;
 use s3::Bucket;
 use s3::Region;
-use s3::creds::Credentials;
 
 use crate::error::Result;
 
@@ -40,13 +40,34 @@ impl ChataraStorage {
         Ok(Self { bucket })
     }
 
+    pub fn with_regeion(
+        name: &str,
+        region: Region,
+        access_key: &str,
+        secret_key: &str,
+    ) -> Result<Self> {
+        let bucket = s3::Bucket::new(
+            name,
+            region,
+            Credentials {
+                access_key: Some(access_key.to_string()),
+                secret_key: Some(secret_key.to_string()),
+                security_token: None,
+                session_token: None,
+                expiration: None,
+            },
+        )?;
+        Ok(Self { bucket })
+    }
+
     pub async fn upload_presign<P>(&self, path: P) -> Result<String>
     where
         P: AsRef<str>,
     {
         let path = path.as_ref();
         self.upload(path).await?;
-        Ok(self.presign_put(path, 60 * 60, None, None).await?)
+        // 获取可以被下载的 presign 链接
+        Ok(self.presign_get(path, 60 * 60, None).await?)
     }
 
     pub async fn upload<P>(&self, path: P) -> Result<usize>

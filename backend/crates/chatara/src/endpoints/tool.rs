@@ -3,15 +3,14 @@ use std::path::PathBuf;
 use chatara_storage::ChataraStorage;
 use log::info;
 use rocket::{
-    State,
     fairing::AdHoc,
     form::{Form, Strict},
-    post, routes,
+    post, routes, State,
 };
 use uuid::Uuid;
 
 use crate::{
-    common::{CommonResponse, guards::auth::AuthGuard, tools::ASRClient},
+    common::{guards::auth::AuthGuard, tools::ASRClient, CommonResponse},
     endpoints::tool::response::ASRMultipart,
     entity::sea_orm_active_enums::ResourceType,
     error::Error,
@@ -34,7 +33,7 @@ async fn create_asr(
     auth: AuthGuard,
     storage: &State<ChataraStorage>,
     asr: ASRClient,
-) -> Result<CommonResponse<()>, Error> {
+) -> Result<CommonResponse<String>, Error> {
     let id = Uuid::now_v7();
     let typ = ResourceType::Audio;
 
@@ -46,8 +45,9 @@ async fn create_asr(
     let presign_url = storage
         .upload_presign(persist_path.display().to_string())
         .await?;
+    let asr_result = asr.do_asr(&presign_url).await?;
 
-    todo!()
+    Ok(CommonResponse::default().set_data(asr_result))
 }
 
 #[post("/tts")]
@@ -57,7 +57,7 @@ async fn create_tts() {}
 async fn create_character() {}
 
 mod response {
-    use rocket::{FromForm, fs::TempFile};
+    use rocket::{fs::TempFile, FromForm};
 
     #[derive(Debug, FromForm)]
     pub struct ASRMultipart<'r> {

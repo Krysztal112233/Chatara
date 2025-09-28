@@ -2,7 +2,7 @@ use chrono::Local;
 use log::{error, info};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
-use serde_json::{Value, json};
+use serde_json::{json, Value};
 
 use crate::error::Error;
 
@@ -46,7 +46,10 @@ impl AutomaticSpeechRecognitionTool {
             Local::now().timestamp_millis() - start_at.timestamp_millis()
         );
 
-        Ok(Root::try_from(response)?
+        let response = dbg!(response);
+
+        Ok(Root::try_from(response)
+            .inspect_err(|e| error!("failed parsing response {e}"))?
             .output
             .choices
             .first()

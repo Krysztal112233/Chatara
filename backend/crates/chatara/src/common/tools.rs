@@ -2,8 +2,9 @@ use std::ops::Deref;
 
 use chatara_tool::asr::AutomaticSpeechRecognitionTool;
 use rocket::{
-    Request, async_trait,
+    async_trait,
     request::{FromRequest, Outcome},
+    Request,
 };
 
 use crate::config::ChataraConfig;

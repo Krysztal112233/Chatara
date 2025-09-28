@@ -23,6 +23,9 @@ pub enum Error {
 
     #[error("{0}")]
     Storage(#[from] chatara_storage::error::Error),
+
+    #[error("{0}")]
+    Tool(#[from] chatara_tool::error::Error),
 }
 
 impl From<Error> for CommonResponse<()> {

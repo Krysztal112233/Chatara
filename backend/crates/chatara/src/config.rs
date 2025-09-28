@@ -1,7 +1,7 @@
 use educe::Educe;
 use rocket::figment::{
-    Figment, Profile,
     providers::{Env, Format, Serialized, Toml},
+    Figment, Profile,
 };
 use serde::{Deserialize, Serialize};
 
@@ -37,6 +37,7 @@ pub struct S3Config {
     pub name: String,
     pub regeion: String,
     pub secret_key: String,
+    pub account_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
