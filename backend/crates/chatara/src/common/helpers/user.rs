@@ -1,6 +1,6 @@
-use migration::OnConflict;
+use chrono::Local;
 use rocket::async_trait;
-use sea_orm::{ActiveValue::Set, ConnectionTrait, EntityTrait};
+use sea_orm::{ActiveModelTrait, ActiveValue::Set, ConnectionTrait, EntityTrait};
 
 use crate::{
     entity::{prelude::*, users},
@@ -14,17 +14,18 @@ pub trait UserHelper {
         T: Into<String> + Send,
         C: ConnectionTrait,
     {
-        users::Entity::insert(users::ActiveModel {
-            id: Set(user.into()),
-            ..Default::default()
-        })
-        .on_conflict(
-            OnConflict::column(users::Column::Id)
-                .do_nothing()
-                .to_owned(),
-        )
-        .exec(db)
-        .await?;
+        let user: String = user.into();
+        let finded = Users::find_by_id(user.clone()).one(db).await?;
+
+        if finded.is_none() {
+            users::ActiveModel {
+                id: Set(user),
+                created_at: Set(Local::now().into()),
+            }
+            .insert(db)
+            .await?;
+        }
+
         Ok(())
     }
 }
