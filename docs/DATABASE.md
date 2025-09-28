@@ -20,3 +20,5 @@
     - 外键：`character_profiles.id`
 - `users`
   - 用户表
+- `attached_resource`
+  - 资源列表
