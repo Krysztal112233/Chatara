@@ -38,7 +38,7 @@ impl AutomaticSpeechRecognitionTool {
             .send()
             .await
             .inspect_err(|e| error!("failed to send request for `{s3_url}`: {e}"))?
-            .json::<Value>()
+            .json::<Root>()
             .await
             .inspect_err(|e| error!("parsing failed: {e}"))?;
         info!(
@@ -48,8 +48,7 @@ impl AutomaticSpeechRecognitionTool {
 
         let response = dbg!(response);
 
-        Ok(Root::try_from(response)
-            .inspect_err(|e| error!("failed parsing response {e}"))?
+        Ok(response
             .output
             .choices
             .first()

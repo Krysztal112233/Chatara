@@ -44,6 +44,7 @@ pub struct ToolConfig {
     pub asr: OpenAiApiConfig,
     pub chat: OpenAiApiConfig,
     pub profile: OpenAiApiConfig,
+    pub tts: OpenAiApiConfig,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
